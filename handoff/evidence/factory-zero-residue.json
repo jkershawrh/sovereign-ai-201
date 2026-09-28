@@ -1,0 +1,14 @@
+{
+  "schema_version": "demo-story.redhat-intel.com/zero-residue/v1",
+  "scope": "local container smoke environment",
+  "source_revision": "0f8c6d875a1336b2c142648a0c4549d73c99c201",
+  "removed": [
+    "sovereign-ai-201-presentation-smoke container",
+    "sovereign-ai-201-adapter-smoke container",
+    "sovereign-ai-201-smoke network"
+  ],
+  "remaining_matching_containers": 0,
+  "remaining_matching_networks": 0,
+  "openshift_reclaim": "NOT RUN; independent Launchpad cluster qualification gate",
+  "created_at": "2026-09-28T20:48:42Z"
+}

@@ -1,0 +1,18 @@
+api_version: launchpad.redhat.com/v1alpha1
+kind: CatalogOnboardingProposal
+metadata:
+  catalog_item_id: sovereign-ai-201
+  status: draft
+spec:
+  repository: https://github.com/jkershawrh/sovereign-ai-201
+  revision: 0f8c6d875a1336b2c142648a0c4549d73c99c201
+  learning_level: "201"
+  prerequisite: sovereign-ai-101
+  source_classes:
+    showroom: {playbook: showroom/default-site.yml, start_path: showroom/content}
+    workload: {deploy_path: charts/sovereign-ai-201}
+  requested_actions: [approve_source, run_discovery]
+  authority:
+    may_modify_catalog: false
+    may_provision: false
+    may_publish: false

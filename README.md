@@ -38,3 +38,9 @@ Rehearsal proves the deterministic contract and failure mechanics without claimi
 Use `npm run dev` for the presentation. The presentation’s `/lab/` handoff is a compact landing page; the complete, separate Showroom source is under `showroom/` and is published by the assigned Launchpad owner after cluster context, capacity, credentials, and cleanup ownership are approved.
 
 Discovery decisions, caveats, and the target architecture are in `demo-blueprint.yaml`. No latency, throughput, model, hardware, certification, or confidential-execution claim is synthesized.
+
+## Published factory candidates
+
+The exact linux/amd64 candidates from source revision `0f8c6d875a1336b2c142648a0c4549d73c99c201` are recorded in `charts/sovereign-ai-201/values.published.yaml`. The complete scan inventory, SPDX SBOM, exact-digest pull, OIDC signature, and attestations are retained by workflow run `36481150292`; source-bound receipts and the non-certified intake proposal are under `handoff/`.
+
+These are factory candidates, not an orderable or certified catalog item. The handoff grants no provisioning, promotion, or publication authority.
