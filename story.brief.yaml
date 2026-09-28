@@ -1,0 +1,44 @@
+version: 1
+blueprint: demo-blueprint.yaml
+presentation:
+  title: Build a Governed Sovereign AI Workload
+  audience: AI platform engineers and governance leaders
+  desired_decision: Adopt the governed workload pattern as the Sovereign AI 201 implementation baseline
+  duration_minutes: 7
+  core_tension: A local model is still unproven unless policy model identity hardware placement and evidence agree
+  cta: Build and qualify the same path in the Sovereign AI 201 lab
+source_material:
+  mode: repository
+  items: [/Users/jkershaw/Documents/sovereign-ai-lab, demo-blueprint.yaml]
+  consequential_assumptions:
+    - TDX confidential execution is outside 201 until kata-cc runtime proof exists.
+    - Offline receipts and historical measurements never appear as live proof.
+architecture:
+  actors: [Platform engineer, Governance reviewer]
+  boundaries: [OpenShift project, Deterministic OPA policy, Model serving, Independent evidence, Human authority]
+  critical_flows: [governed-inference, proof-verification]
+  omitted_from_main_story: [Praxis, ContextForge, MCP catalog, model training internals, TDX confidential guest]
+beats:
+  - { beat: ordinary-world, claim: A local endpoint does not prove sovereign behavior. }
+  - { beat: stakes, claim: Unprovable policy model and data handling create operational and regulatory risk. }
+  - { beat: reframe, claim: Move sovereignty into the governed request path. }
+  - { beat: system-reveal, claim: Separate policy routing inference evidence and authority. }
+  - { beat: live-proof, claim: Run an allowed local request and a denied cross-border condition through the same architecture. }
+  - { beat: trials, claim: Prove the model cannot override deterministic policy. }
+  - { beat: transformation, claim: Evidence rather than model output earns the workload claim. }
+  - { beat: next-journey, claim: Build break qualify and export the receipt in the 201 lab. }
+evidence:
+  - { id: aibom, claim: Model identity and qualification are inspectable, classification: verified-fact, source: model-lifecycle/aibom/sovereign-granite-3b.aibom.json, owner: Model lifecycle, last_verified: 2026-09-28, treatment: Live API when available; labeled rehearsal otherwise. }
+  - { id: policy, claim: Residency policy is default deny, classification: verified-fact, source: infra/opa/policies/data-residency.rego, owner: Platform policy, last_verified: 2026-09-28, treatment: Show exact allow or deny result. }
+  - { id: inference, claim: Approved Granite inference is served by OVMS on Intel Xeon CPU, classification: live-measurement, source: POST /api/route, owner: Runtime platform, last_verified: null, treatment: Claim only after a LIVE response. }
+  - { id: proof, claim: Ledger chains can be independently verified, classification: live-measurement, source: GET /api/ledger/verify, owner: Evidence platform, last_verified: null, treatment: Claim only after a LIVE response. }
+live_systems:
+  - { id: demo-api, endpoint: /api, timeout: bounded per adapter, fallback: checked-in rehearsal values with visible source badge }
+journey:
+  presentation: Seven-scene decision story
+  live_demonstration: Five-step allow deny and proof comparison
+  guided_demo: Instructor traces every runtime and authority boundary
+  hands_on_lab: Learner builds tests failure qualifies behavior and exports a receipt
+open_questions:
+  - Which certified OpenShift target and namespace will host the immutable 201 image?
+  - Will Launchpad bind the existing sovereign demo-api or package the source services with this lab?
