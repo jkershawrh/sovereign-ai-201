@@ -17,9 +17,11 @@ export async function runProof<T extends Record<string, unknown>>(
 
   try {
     const data = await adapter.load(controller.signal)
+    const reported = String(data.source_state ?? '').toLowerCase()
+    const source = reported === 'live' || reported === 'rehearsal' || reported === 'offline' ? reported : 'live'
     const state: ProofState<T> = {
       status: 'ready',
-      source: 'live',
+      source,
       data,
       collectedAt: new Date().toISOString(),
     }

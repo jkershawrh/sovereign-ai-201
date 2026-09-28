@@ -7,10 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run && node --test content-201/tools/lab-check.test.mjs",
+    "test:factory": "python3 -m unittest discover -s tests -v",
+    "lint:helm": "helm lint charts/sovereign-ai-201 && helm template sovereign-ai-201 charts/sovereign-ai-201 >/dev/null",
+    "validate:blueprint": "node scripts/validate-blueprint.mjs demo-blueprint.yaml",
     "test:visual": "playwright test",
     "verify:offline": "node scripts/verify-offline.mjs",
     "verify:lab": "node content-201/tools/lab-check.mjs",
-    "check": "npm run test && npm run build && npm run verify:offline && npm run verify:lab",
+    "check": "npm run validate:blueprint && npm run test:factory && npm run lint:helm && npm run test && npm run build && npm run verify:offline && npm run verify:lab",
     "preview": "vite preview"
   },
   "dependencies": {

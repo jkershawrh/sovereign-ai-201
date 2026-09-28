@@ -1,0 +1,15 @@
+= 7. Review correlated evidence and human authority
+
+Fetch the evidence record for each condition. Verify request ID, correlation ID,
+request hash, identity, residency, policy decision, source state, outcome, model
+participation, and collection time. Confirm the prompt and Secret values are not
+stored.
+
+Complete `evidence-map.md` with one claim and one limit per condition. The
+reviewer—not the model, policy engine, adapter, or evidence store—records accept
+or reject. A valid receipt proves the recorded boundary behavior; it does not
+grant deployment, certification, or promotion authority.
+
+Run `python3 lab/qualify_submission.py <your-working-directory>` and resolve
+every remaining TODO before review.
+

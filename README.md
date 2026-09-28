@@ -1,45 +1,40 @@
-# Sovereign AI 201 — Build a Governed Workload
+# Sovereign AI 201 — Build the Governed Inference Boundary
 
-This repository turns the verified `sovereign-ai-lab` request path into a Red Hat × Intel presentation and a 201-level implementation journey.
+This repository contains a concise Red Hat × Intel Triforce presentation and a separate Antora Showroom for constructing a fail-closed inference boundary on OpenShift.
 
-The central claim is deliberately narrow: a workload becomes demonstrably sovereign when deterministic policy constrains inference, the approved model runs on controlled Intel infrastructure, decision evidence is recorded independently, and a human can verify the result.
+The learner defines residency and trust, authors a versioned request/response contract, wires Secret references, a Service, and NetworkPolicy, and qualifies five outcomes: allowed, policy denied, malformed, injection blocked, and dependency unavailable. Every outcome produces redacted correlation evidence for a named human reviewer. Model output is advisory and never grants deployment, promotion, or certification authority.
 
-## Current state
+## What is here
 
-Implemented:
+- `contracts/`: governed request, response, and evidence schemas with examples.
+- `workload/`: standard-library qualification adapter and CLI client.
+- `charts/sovereign-ai-201/`: secret-free OpenShift deployment, Service, Route, and default-deny NetworkPolicy.
+- `showroom/`: the separate 75–90 minute Antora learning journey.
+- `src/`: the seven-scene presentation with honest `LIVE`, `REHEARSAL`, and `OFFLINE` states.
+- `lab/starter/`: incomplete learner artifacts used by the Showroom.
+- `tests/`: contract, workload, packaging, Showroom, and release qualification.
 
-- Seven-scene presenter story with guided architecture and a five-step live journey.
-- Real adapters for AIBOM identity, OPA allow/deny, Granite inference, and ledger verification.
-- Honest `LIVE`, `REHEARSAL`, and `OFFLINE` source labels.
-- OpenShift runtime topology with protocol, service, policy, model, evidence, and authority boundaries.
-- Local Red Hat fonts plus Red Hat and Intel logos.
-- Unit/component tests, production build, and offline-asset verification.
+The upstream `sovereign-ai-lab` repository was inspected at `05dea04c2faa95b2df426a228b8979ed7f07a098` as discovery evidence only. Its fail-open adapter behavior is not inherited. Sovereign AI 101 and its certification evidence are independent and unchanged.
 
-Explicitly excluded from 201 claims:
-
-- Confidential-guest execution: the source documents kata-cc as blocked.
-- The checked-in offline promotion receipt as live ledger evidence.
-- Historical benchmark numbers as current infrastructure measurements.
-- Local modifications in the source ledger submodule.
-
-## Run
+## Local qualification
 
 ```bash
 npm ci
+python3 -m pip install -r requirements-test.txt
 npm run check
-npm run dev
+npm run test:visual
 ```
 
-Without the source services behind `/api`, the presentation uses visibly labeled rehearsal fixtures. The container expects a `demo-api` Service on port `9099` in the same OpenShift project.
+Run the adapter in rehearsal mode:
 
-## Presenter flow
+```bash
+python3 -m workload.app
+```
 
-1. Ask why a local model alone is not a sovereignty proof.
-2. Reframe sovereignty as observable workload behavior.
-3. Reveal request contract, OPA policy, prompt control, Intel CPU inference, and independent evidence.
-4. Run model identity, local allow, live inference, cross-border deny, and ledger verification.
-5. Explain policy as code, bounded inference, and independent proof.
-6. Close from evidence produced in the current browser session.
-7. Hand off to the 60–90 minute lab to build, break, and qualify the same path.
+Rehearsal proves the deterministic contract and failure mechanics without claiming that a model, provider, or hardware participated. A LIVE allow requires a runtime Secret with the endpoint, model, provider, hardware identity, and credential; missing or invalid dependencies return `DEPENDENCY_UNAVAILABLE` and no advisory.
 
-Discovery and source discrepancies are recorded in `demo-blueprint.yaml`. The source repository remains untouched.
+## Presentation and Showroom
+
+Use `npm run dev` for the presentation. The presentation’s `/lab/` handoff is a compact landing page; the complete, separate Showroom source is under `showroom/` and is published by the assigned Launchpad owner after cluster context, capacity, credentials, and cleanup ownership are approved.
+
+Discovery decisions, caveats, and the target architecture are in `demo-blueprint.yaml`. No latency, throughput, model, hardware, certification, or confidential-execution claim is synthesized.

@@ -1,13 +1,17 @@
 import type { LiveDataAdapter } from '../types'
 import { registerAdapter } from './adapters'
 
+type Condition = 'allowed' | 'denied' | 'injection' | 'unavailable'
+
+const evidenceIds: string[] = []
+
 async function json<T>(url: string, signal: AbortSignal, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
     signal,
   })
-  if (!response.ok) throw new Error(`Live endpoint returned HTTP ${response.status}`)
+  if (!response.ok) throw new Error(`Qualification endpoint returned HTTP ${response.status}`)
   return response.json() as Promise<T>
 }
 
@@ -15,54 +19,68 @@ function adapter(id: string, rehearsal: Record<string, unknown>, load: LiveDataA
   return { id, timeoutMs, load, rehearsal: { data: rehearsal, collectedAt: '2026-09-28T00:00:00.000Z' } }
 }
 
-registerAdapter(adapter('sovereign-identity', {
-  model: 'sovereign-granite-2b-instruct', license: 'Apache-2.0', provenance: 'cca90cb67fd…', evaluation: 'all gates passed', hardware: 'Intel Xeon CPU',
-}, async (signal) => {
-  const aibom = await json<any>('/api/model/aibom', signal)
+function governedRequest(condition: Condition) {
+  const id = crypto.randomUUID()
+  const destination = condition === 'denied' ? 'us-east-1' : 'local'
   return {
-    model: aibom.model?.name ?? 'unreported',
-    license: aibom.model?.base_model?.license ?? 'unreported',
-    provenance: aibom.provenance_hash?.slice(0, 12) ?? 'unreported',
-    evaluation: aibom.model?.evaluation?.all_pass ? 'all gates passed' : 'not qualified',
-    hardware: aibom.model?.adaptation?.training_environment?.node_type ?? 'unreported',
+    contract_version: 'sovereign-inference/v1',
+    request_id: id,
+    correlation_id: `demo-${condition}-${id}`,
+    identity: { subject: 'spiffe://workshop.example/presenter', trust_domain: 'workshop.example' },
+    residency: { data_origin: 'local', approved_regions: ['local', 'eu-central'], destination_region: destination },
+    data_classification: condition === 'denied' ? 'sensitive_personal' : 'general',
+    requested_model: 'granite-3.2-sovereign',
+    prompt: 'Explain why deterministic policy must precede model inference.',
+    final_decision_owner: 'human-reviewer',
   }
-}))
+}
 
-registerAdapter(adapter('sovereign-policy-allow', {
-  decision: 'ALLOW', destination: 'local', classification: 'general', rule: 'local processing is allowed',
-}, async (signal) => {
-  const result = await json<{ result: boolean }>('/api/policies/evaluate', signal, {
-    method: 'POST', body: JSON.stringify({ policy: 'sovereign/data_residency/allow', input: { destination_region: 'local', data_classification: 'general' } }),
+async function qualify(condition: Condition, signal: AbortSignal) {
+  if (condition === 'allowed') evidenceIds.splice(0)
+  const response = await json<any>(`/api/v1/qualify?condition=${condition}`, signal, {
+    method: 'POST', body: JSON.stringify(governedRequest(condition)),
   })
-  return { decision: result.result ? 'ALLOW' : 'DENY', destination: 'local', classification: 'general', rule: 'default deny + explicit local allow' }
-}))
+  if (response.evidence_id) evidenceIds.push(response.evidence_id)
+  return {
+    outcome: response.outcome,
+    policy: response.policy?.decision ?? 'NOT_EVALUATED',
+    reason: response.policy?.reason ?? 'unreported',
+    model: response.model?.id ?? 'not invoked',
+    model_participated: response.model_participated ? 'yes' : 'no',
+    source_state: response.source_state,
+    authority: response.authority,
+  }
+}
 
-registerAdapter(adapter('sovereign-inference', {
-  route: 'completed', model: 'granite-3.2-sovereign', latency: 'rehearsal only', response: 'Local processing keeps the request inside the governed workload boundary.',
-}, async (signal) => {
-  const start = performance.now()
-  const result = await json<any>('/api/route', signal, {
-    method: 'POST', body: JSON.stringify({ prompt: 'Explain why local processing supports data sovereignty in one sentence.', max_tokens: 80 }),
-  })
-  return { route: result.route, model: result.model ?? 'unreported', latency: `${Math.round(performance.now() - start)} ms`, response: result.response ?? result.reason ?? 'No response returned' }
-}, 65_000))
+registerAdapter(adapter('sovereign-allowed', {
+  outcome: 'ALLOWED', policy: 'ALLOW', reason: 'destination and model are approved', model: 'not invoked', model_participated: 'no', source_state: 'REHEARSAL', authority: 'HUMAN_REVIEW_REQUIRED',
+}, (signal) => qualify('allowed', signal)))
 
-registerAdapter(adapter('sovereign-policy-deny', {
-  decision: 'DENY', destination: 'us-east-1', classification: 'sensitive_personal', effect: 'inference not authorized',
-}, async (signal) => {
-  const result = await json<{ result: boolean }>('/api/policies/evaluate', signal, {
-    method: 'POST', body: JSON.stringify({ policy: 'sovereign/data_residency/allow', input: { destination_region: 'us-east-1', data_classification: 'sensitive_personal' } }),
-  })
-  return { decision: result.result ? 'ALLOW' : 'DENY', destination: 'us-east-1', classification: 'sensitive_personal', effect: result.result ? 'eligible for routing' : 'inference not authorized' }
-}))
+registerAdapter(adapter('sovereign-denied', {
+  outcome: 'POLICY_DENIED', policy: 'DENY', reason: 'destination region is not approved', model: 'not invoked', model_participated: 'no', source_state: 'REHEARSAL', authority: 'HUMAN_REVIEW_REQUIRED',
+}, (signal) => qualify('denied', signal)))
+
+registerAdapter(adapter('sovereign-injection', {
+  outcome: 'INJECTION_BLOCKED', policy: 'DENY', reason: 'prompt injection pattern detected', model: 'not invoked', model_participated: 'no', source_state: 'REHEARSAL', authority: 'HUMAN_REVIEW_REQUIRED',
+}, (signal) => qualify('injection', signal)))
+
+registerAdapter(adapter('sovereign-unavailable', {
+  outcome: 'DEPENDENCY_UNAVAILABLE', policy: 'NOT_EVALUATED', reason: 'required dependency is unavailable', model: 'not invoked', model_participated: 'no', source_state: 'OFFLINE', authority: 'HUMAN_REVIEW_REQUIRED',
+}, (signal) => qualify('unavailable', signal)))
 
 registerAdapter(adapter('sovereign-proof', {
-  chain: 'VALID', entries: 'rehearsal snapshot', writers: 'router + policy bridge', authority: 'human review',
+  outcome: 'EVIDENCE_REVIEW', records: 4, correlated: 'yes', secrets_recorded: 'no', source_state: 'REHEARSAL', authority: 'HUMAN_REVIEW_REQUIRED',
 }, async (signal) => {
-  const [verification, writers] = await Promise.all([
-    json<any>('/api/ledger/verify', signal),
-    json<any>('/api/ledger/writers', signal),
-  ])
-  const checked = Array.isArray(verification.chains) ? verification.chains.reduce((sum: number, chain: any) => sum + Number(chain.entries_checked ?? 0), 0) : 0
-  return { chain: verification.all_valid ? 'VALID' : 'INVALID', entries: checked, writers: Object.keys(writers.writers ?? {}).length, authority: 'human review' }
+  if (!evidenceIds.length) throw new Error('Run the qualification conditions first.')
+  const records = await Promise.all(evidenceIds.map((id) => json<any>(`/api/v1/evidence/${id}`, signal)))
+  const states = new Set(records.map((record) => record.source_state))
+  const reportedState = states.has('OFFLINE') ? 'OFFLINE' : states.size === 1 && states.has('LIVE') ? 'LIVE' : 'REHEARSAL'
+  return {
+    outcome: 'EVIDENCE_REVIEW',
+    records: records.length,
+    correlated: records.every((record) => record.correlation_id && record.request_sha256) ? 'yes' : 'no',
+    secrets_recorded: records.some((record) => record.secret_values_recorded) ? 'yes' : 'no',
+    source_state: reportedState,
+    authority: 'HUMAN_REVIEW_REQUIRED',
+  }
 }))

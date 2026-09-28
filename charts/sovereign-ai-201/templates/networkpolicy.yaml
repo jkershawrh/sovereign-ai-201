@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereign-ai-201-adapter-default-deny
+  labels:
+    {{- include "sovereign-ai-201.labels" . | nindent 4 }}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: sovereign-ai-201-adapter}}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sovereign-ai-201-declared-paths
+  labels:
+    {{- include "sovereign-ai-201.labels" . | nindent 4 }}
+spec:
+  podSelector: {matchLabels: {app.kubernetes.io/name: sovereign-ai-201-adapter}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {matchLabels: {app.kubernetes.io/name: sovereign-ai-201-presentation}}
+        - podSelector: {matchLabels: {demo.redhat-intel.com/role: learner-client}}
+      ports: [{protocol: TCP, port: 8080}]
+  egress:
+    - to:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: openshift-dns}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+    {{- if .Values.adapter.model.egressCIDR }}
+    - to:
+        - ipBlock: {cidr: {{ .Values.adapter.model.egressCIDR | quote }}}
+      ports: [{protocol: TCP, port: {{ .Values.adapter.model.egressPort }} }]
+    {{- end }}
+

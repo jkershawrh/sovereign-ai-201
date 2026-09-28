@@ -1,0 +1,15 @@
+= 5. Qualify allowed and denied paths
+
+Run an allowed local, general-data request. Preserve the policy decision,
+source state, model participation flag, model identity when actually live,
+correlation ID, request hash, and evidence ID.
+
+Then change only the destination to a region not approved by the platform.
+Require `POLICY_DENIED`, `model_participated: false`, and no `model` or
+`advisory` field. The policy result—not model preference—must explain the
+changed outcome.
+
+In `REHEARSAL`, an allowed request qualifies the deterministic boundary but does
+not claim that the model ran. Only `LIVE` with complete runtime identity may set
+`model_participated: true`.
+

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: sovereign-ai-201
+description: Governed inference boundary for the Sovereign AI 201 construction lab
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+

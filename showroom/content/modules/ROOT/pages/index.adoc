@@ -1,0 +1,14 @@
+= Build the Governed Inference Boundary
+:page-layout: home
+
+In this 75–90 minute construction lab, you author and qualify one governed
+inference boundary on Red Hat OpenShift. The boundary constrains an approved
+model route, keeps runtime credentials out of learner artifacts, preserves
+correlation evidence, and fails closed when policy, input, or dependencies do
+not qualify.
+
+You leave with a request contract, client, Secret reference, Service,
+NetworkPolicy, five-condition evidence map, human decision, and reclaim receipt.
+
+Begin with xref:01-prerequisite.adoc[the prerequisite check].
+

@@ -1,0 +1,18 @@
+= 8. Reclaim and prove cleanup
+
+Capture the workload inventory before cleanup:
+
+----
+oc get deploy,svc,route,networkpolicy,secret -l app.kubernetes.io/part-of=sovereign-ai-201 -o name | sort | tee before-reclaim.txt
+----
+
+Uninstall only your Helm release and remove the participant namespace only when
+the workshop owner assigns namespace cleanup to you. Never delete a shared
+runtime Secret or model service.
+
+Capture the same labeled inventory afterward and require zero matching workload
+objects. Save the command, release, namespace, before/after inventories,
+timestamp, and any retained shared dependency in `reclaim-receipt.json`.
+
+Factory container cleanup does not substitute for this OpenShift reclaim proof.
+

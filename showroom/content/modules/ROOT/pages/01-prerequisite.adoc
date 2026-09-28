@@ -1,0 +1,15 @@
+= 1. Establish the prerequisite
+
+Sovereign AI 101 or equivalent trace literacy is the prerequisite. It teaches
+you to distinguish policy, inference, evidence, and human authority.
+
+Do not copy Sovereign AI 101 completion evidence into this lab. A 101 receipt is
+not 201 construction work. Your 201 proof begins with the files you author in
+this session.
+
+Copy `lab/starter/` to a personal working directory. Preserve its original TODO
+state so a reviewer can distinguish the starter from your completed work.
+
+Record the session source state as `LIVE`, `REHEARSAL`, or `OFFLINE`. Only a
+current response from the attached OpenShift workload may be called `LIVE`.
+

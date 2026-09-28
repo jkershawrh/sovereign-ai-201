@@ -1,27 +1,26 @@
-# Sovereign AI 201 lab journey
+# Sovereign AI 201 Showroom journey
 
-Target duration: 60–90 minutes. The lab continues the presentation’s exact path instead of restarting with a component tour.
+Target duration: 75–90 minutes. The Showroom continues the presentation but remains a separate learning artifact.
 
 ## Learner outcome
 
-The learner leaves with a governed workload declaration, tested allow and deny cases, a model identity record, and a proof-verification receipt that another reviewer can inspect.
+The learner leaves with a versioned contract, client, OpenShift Service and NetworkPolicy, runtime Secret references, five qualified outcomes, a redacted evidence map, a named human disposition, and a reclaim receipt.
 
 ## Stages
 
-1. **Declare the workload** — record prompt class, identity, jurisdiction, destination, approved model, and final decision owner.
-2. **Inspect model identity** — retrieve the AIBOM and reject missing origin, license, evaluation, or provenance fields.
-3. **Write policy cases** — define one eligible local request and one prohibited cross-border request before running either.
-4. **Run the eligible path** — evaluate OPA, classify the prompt, call Granite through OVMS on Intel Xeon, and capture model plus elapsed request time.
-5. **Prove fail-closed behavior** — run the prohibited condition and confirm inference does not receive authority to proceed.
-6. **Verify the receipt** — inspect ledger writers, chain validity, entry count, and correlation to the tested conditions.
-7. **Break and qualify** — remove an approved region, submit an injection pattern, or interrupt a dependency; record the named failure and confirm no fabricated success.
-8. **Close and hand off** — export the declaration and evidence for review; identify what belongs in 301 and what confidential-execution proof belongs in 401.
+1. **Map residency and trust** — define identity, data class, approved destinations and models, network paths, evidence, and final human authority.
+2. **Author the boundary** — complete the request schema and client; reject incomplete or credential-bearing input before inference.
+3. **Wire OpenShift controls** — configure only Secret references, the stable Service, default deny, declared ingress, DNS, and approved model egress.
+4. **Qualify allowed** — distinguish REHEARSAL mechanics from LIVE model participation; never infer runtime identity from authored copy.
+5. **Qualify denied and malformed** — prove that residency denial and invalid input produce typed evidence and no model content.
+6. **Break safely** — exercise prompt injection and dependency unavailability; both must fail closed.
+7. **Review evidence and authority** — correlate every response to a redacted record and record a human accept or reject decision with limitations.
+8. **Reclaim OpenShift** — delete only labeled learner resources and compare before/after inventories for zero assigned residue.
 
 ## Release gates
 
-- Commands and URLs come from the Launchpad session context.
-- Live evidence never becomes fixture data without a visible source-state change.
-- The denied case proves the model was not invoked as an authority.
-- A receipt is integrity evidence, never a credential or execution grant.
-- Intel hardware identity comes from an approved runtime source, not authored copy.
-- TDX is not claimed unless a confidential guest and attestation are independently verified.
+- Commands, URLs, capacity, and credentials come from the Launchpad session context.
+- A model, provider, hardware identity, or advisory is claimed only from a complete LIVE response.
+- Every denied, malformed, injection, or unavailable branch forbids model output.
+- Evidence contains no prompt or Secret value and grants no execution, promotion, or certification authority.
+- Reclaim is verified by the assigned cluster owner; no cluster access is assumed by this repository.

@@ -8,6 +8,7 @@ import { TechnicalTopology } from './TechnicalTopology'
 export function LiveJourney({ scene }: { scene: LiveJourneyScene }) {
   const [stepIndex, setStepIndex] = useState(-1)
   const [state, setState] = useState<ProofState>({ status: 'idle' })
+  const [history, setHistory] = useState<Record<number, ProofState>>({})
   const [showTopology, setShowTopology] = useState(false)
   const controller = useRef<AbortController | undefined>(undefined)
   const step = stepIndex >= 0 ? scene.steps[stepIndex] : undefined
@@ -26,7 +27,9 @@ export function LiveJourney({ scene }: { scene: LiveJourneyScene }) {
       setState({ status: 'error', error: `Adapter not registered: ${next.adapterId}` })
       return
     }
-    setState(await runProof(adapter, controller.current.signal))
+    const result = await runProof(adapter, controller.current.signal)
+    setState(result)
+    if (result.status === 'ready') setHistory((current) => ({ ...current, [index]: result }))
   }
 
   return <SceneFrame scene={scene}><div className="live-workspace" data-testid="live-workspace">
@@ -35,9 +38,9 @@ export function LiveJourney({ scene }: { scene: LiveJourneyScene }) {
     </nav>
     <div className="live-workspace-main">
       <div className="journey-status">
-        <small>{step ? `ACT ${stepIndex + 1} OF ${scene.steps.length}` : 'LIVE WORKLOAD'}</small>
+        <small>{step ? `CONDITION ${stepIndex + 1} OF ${scene.steps.length}` : 'QUALIFICATION WORKSPACE'}</small>
         <strong>{step?.title ?? 'Start with the workload—not the topology'}</strong>
-        <span>{step?.detail ?? 'Run a concrete input, then inspect the evidence and measurements returned by each condition.'}</span>
+        <span>{step?.detail ?? 'Run a concrete input, then inspect the evidence and source state returned by each condition.'}</span>
         {state.source && <span className={`source-badge source-${state.source}`}>{state.source}</span>}
       </div>
       {!step && <div className="live-workspace-intake"><span>INPUT</span><strong>Bounded demonstration request</strong><small>The first action should describe what enters the system, why it matters, and what will be measured.</small></div>}
@@ -49,6 +52,13 @@ export function LiveJourney({ scene }: { scene: LiveJourneyScene }) {
         {index < scene.nodes.length - 1 && <div className={`live-edge ${step && index < step.activeNode ? 'done' : ''}`}>→</div>}
       </div>)}
       </div>}
+    {Object.entries(history).some(([index]) => Number(index) !== stepIndex) && <div className="journey-history" aria-label="Earlier qualification evidence">
+      {Object.entries(history).filter(([index]) => Number(index) !== stepIndex).map(([index, prior]) => <div className="journey-history-item" key={index}>
+        <span>{scene.steps[Number(index)].title}</span>
+        <strong>{String(prior.data?.outcome ?? 'recorded')}</strong>
+        <small>{prior.source?.toUpperCase()}</small>
+      </div>)}
+    </div>}
     {state.status === 'ready' && state.data && step && <div className="journey-results">
       {step.resultFields.map((field) => <div className="journey-result" key={field.key}><span>{field.label}</span><strong>{String(state.data?.[field.key] ?? '—')}{field.suffix}</strong></div>)}
     </div>}
@@ -56,10 +66,10 @@ export function LiveJourney({ scene }: { scene: LiveJourneyScene }) {
       <div className="journey-controls">
       {scene.technicalTopology && <button className="button button-secondary" onClick={() => setShowTopology((visible) => !visible)}>{showTopology ? 'Hide' : 'Inspect'} technical topology</button>}
       {stepIndex < 0 && <button className="button button-primary" onClick={() => runStep(0)}>{scene.cta}</button>}
-      {stepIndex >= 0 && !complete && state.status !== 'loading' && <button className="button button-primary" onClick={() => runStep(stepIndex + 1)}>Next live act →</button>}
+      {stepIndex >= 0 && !complete && state.status !== 'loading' && <button className="button button-primary" onClick={() => runStep(stepIndex + 1)}>Next condition →</button>}
       {state.status === 'loading' && <button className="button button-primary" disabled>Running…</button>}
       {state.status === 'error' && <button className="button button-secondary" onClick={() => runStep(stepIndex)}>Retry</button>}
-      {complete && <button className="button button-secondary" onClick={() => { setStepIndex(-1); setState({ status: 'idle' }); setShowTopology(false) }}>Replay</button>}
+      {complete && <button className="button button-secondary" onClick={() => { setStepIndex(-1); setState({ status: 'idle' }); setHistory({}); setShowTopology(false) }}>Replay</button>}
       {complete && scene.workspace && <a className="button button-primary" href={scene.workspace.href}>{scene.workspace.label} →</a>}
       </div>
     </div>

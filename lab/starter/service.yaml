@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata: {name: TODO-governed-adapter}
+spec:
+  # TODO: select only the adapter and expose its named HTTP port.
+  selector: {}
+  ports: []
+

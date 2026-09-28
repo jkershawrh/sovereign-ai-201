@@ -1,0 +1,15 @@
+= 2. Map residency and trust boundaries
+
+Before writing YAML, name the boundary you intend to enforce:
+
+* data origin and the platform-approved destination regions;
+* workload subject and trust domain;
+* approved model identity, provider, and Intel hardware class;
+* the OpenShift project, Service path, and permitted model egress;
+* evidence storage and the named human reviewer.
+
+Draw the request path from learner client → Service → qualification adapter →
+approved model. Draw policy and evidence as separate responsibilities. The model
+may draft an advisory response; it cannot approve residency, change policy,
+write credentials, certify the lab, or authorize promotion.
+

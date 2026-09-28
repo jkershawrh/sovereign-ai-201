@@ -10,10 +10,10 @@
 !src/**
 !public/
 !public/**
-!packaging/
-!packaging/runtime/
-!packaging/runtime/*.mjs
+!workload/
+!workload/**
 !Containerfile
+!nginx.conf
 **/.env*
 **/*.pem
 **/*.key

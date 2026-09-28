@@ -1,0 +1,15 @@
+= 4. Wire policy and platform controls
+
+Complete the Deployment fragment so model endpoint, model ID, provider,
+hardware identity, and credential arrive only through `secretKeyRef`. An
+environment owner creates the named Secret outside source control; learners
+never print or retrieve its values.
+
+Complete the Service with a stable namespace-local port. Complete two
+NetworkPolicy objects: default-deny the adapter, then admit only the learner and
+presentation clients, DNS, and the approved model endpoint CIDR and port.
+
+Configure platform-approved regions and models independently from the request.
+The request cannot approve its own destination. Render the chart and inspect
+references, selectors, ports, and egress before deployment.
+

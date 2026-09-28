@@ -2,17 +2,17 @@ version: 1
 status: reviewed
 source:
   name: sovereign-ai-lab
-  kind: repository
-  location: /Users/jkershaw/Documents/sovereign-ai-lab
+  kind: upstream-discovery-source
+  location: https://github.com/jkershawrh/sovereign-ai-lab
   revision: 05dea04c2faa95b2df426a228b8979ed7f07a098
   discovered_at: 2026-09-28T20:25:36.419Z
   inspected_artifacts:
     - README.md
     - experience/demo/main.py
     - inference/semantic-router/router.py
+    - gcl/prompt-adapter/adapter.py
     - infra/opa/policies/data-residency.rego
     - infra/opa/policies/model-access.rego
-    - infrastructure/oberon/demo-api.yaml
     - infrastructure/oberon/semantic-router.yaml
     - infrastructure/oberon/opa.yaml
     - infrastructure/oberon/ovms-sovereign-granite.yaml
@@ -22,102 +22,124 @@ source:
     - model-lifecycle/promote/promotion-decision.json
     - docs/kata-cc-tdx-blocker.md
     - .github/workflows/release-components.yml
-    - experience/demo/Dockerfile
-    - experience/frontend/Dockerfile
-    - inference/semantic-router/Dockerfile
   discrepancies:
-    - ledger/are-immutable-ledger is pinned at a1b70fb but has local modifications; those changes are excluded from release evidence.
-    - README names infrastructure/dev-cluster-1, while this checkout contains the deployment under infrastructure/oberon.
-    - The checked-in promotion decision has ledger_status offline and is not a live receipt.
-    - TDX host capability is documented, but kata-cc confidential guest execution is blocked; 201 makes no confidential-execution claim.
-    - The source GCL adapter permits inference when OPA is unavailable and treats ledger-write failure as non-fatal; the 201 qualification adapter must fail closed instead of inheriting that demo behavior.
-    - The source component release currently blocks only fixable HIGH/CRITICAL findings; the 201 release must gate the complete vulnerability inventory.
-    - Source revision 05dea04 pins and hardens three source component images, but no current live OpenShift or model run was attached to this factory session.
+    - id: source-working-tree
+      status: verified
+      summary: The source ledger submodule contains an unrelated local modification; it was preserved and excluded from every 201 artifact and claim.
+    - id: source-path-drift
+      status: verified
+      summary: The README names infrastructure/dev-cluster-1 while the reviewed deployment is under infrastructure/oberon.
+    - id: source-offline-receipt
+      status: verified
+      summary: The checked-in promotion decision has ledger_status offline and is not live evidence.
+    - id: confidential-execution-out-of-scope
+      status: verified
+      summary: TDX host capability is documented but confidential guest execution is not qualified; 201 makes no confidential-execution claim.
+    - id: source-fail-open-gap
+      status: verified
+      summary: The source GCL adapter permits inference when OPA is unavailable and treats ledger-write failure as non-fatal; the 201 qualification adapter intentionally fails closed instead.
+    - id: live-platform-proof-pending
+      status: unknown
+      summary: No approved OpenShift target or managed Intel CPU model endpoint is attached to this factory session.
 intent:
-  primary_user: AI platform engineer building a governed sovereign inference workload
-  workload: Classify a prompt, enforce jurisdiction and identity policy, run approved Granite inference on Intel Xeon, and verify its evidence chain
-  recognized_problem: A locally hosted model is not sovereign if teams cannot prove which model ran, which policy constrained it, where data could go, and who retained authority.
-  audience_decision: Adopt the Red Hat and Intel governed workload pattern as the 201 implementation baseline.
-  desired_outcome: The learner can build and explain a fail-closed request path whose decisions are independently verifiable.
+  primary_user: AI platform engineer who completed Sovereign AI 101 or can already trace policy, inference, evidence, and authority.
+  workload: A learner-authored contract constrains residency, identity, model routing, Secret references, Service reachability, NetworkPolicy, evidence, and human authority around one bounded inference request.
+  recognized_problem: A local model is not a governed sovereign workload when its request contract, destinations, credentials, failures, evidence, and decision owner remain implicit.
+  audience_decision: Approve a construction-level 201 lab that makes the governed inference boundary explicit and fail closed.
+  desired_outcome: The learner leaves with schemas, a client, OpenShift resources, five qualified outcomes, a redacted evidence map, human disposition, and reclaim receipt.
 architecture:
   actors:
-    - { id: learner, name: Platform engineer, kind: actor, responsibility: Defines the request and reviews its receipt, status: verified, source: content/modules/ROOT/pages/04-inference-routing.adoc }
+    - {id: learner, name: Platform engineer, kind: human, responsibility: Authors and executes the boundary and maps evidence to claims, status: verified, source: showroom/content/modules/ROOT/pages}
+    - {id: reviewer, name: Human governance reviewer, kind: human, responsibility: Accepts or rejects the evidence package and owns the final decision, status: verified, source: contracts/governed-response.schema.json}
   runtime_objects:
-    - { id: frontend, name: frontend Deployment and Service, kind: deployment, responsibility: Presents the workload and sends API requests, status: verified, source: infrastructure/oberon/frontend.yaml }
-    - { id: demo-api, name: demo-api Deployment and Service, kind: service, responsibility: Exposes typed policy routing lifecycle and proof endpoints, status: verified, source: experience/demo/main.py }
-    - { id: router, name: prompt-adapter Deployment and Service, kind: service, responsibility: Classifies sensitive data and injection before forwarding approved prompts, status: verified, source: inference/semantic-router/router.py }
-    - { id: opa, name: OPA Deployment and Service, kind: policy, responsibility: Evaluates deny-by-default residency and model access, status: verified, source: infra/opa/policies/data-residency.rego }
-    - { id: ovms, name: ovms-sovereign-granite Deployment and Service, kind: model-endpoint, responsibility: Serves approved Granite inference on Intel Xeon CPU, status: verified, source: infrastructure/oberon/ovms-sovereign-granite.yaml }
-    - { id: ledger-gateway, name: ledger-gateway Deployment and Service, kind: service, responsibility: Accepts and exposes evidence over REST, status: verified, source: infrastructure/oberon/ledger-gateway.yaml }
-    - { id: ledger, name: ledger Deployment and Service, kind: evidence-store, responsibility: Persists ordered hash-linked evidence independently, status: verified, source: infrastructure/oberon/ledger.yaml }
+    - {id: presentation, name: Presentation client, kind: apps/v1 Deployment, responsibility: Runs typed proof calls and preserves condition history with source labels, status: verified, source: src/live/sovereignAdapter.ts}
+    - {id: adapter-service, name: Qualification adapter Service, kind: v1 Service, responsibility: Provides stable namespace-local DNS for the governed boundary, status: verified, source: charts/sovereign-ai-201/templates/service.yaml}
+    - {id: adapter, name: Qualification adapter, kind: apps/v1 Deployment, responsibility: Validates schema, evaluates policy and injection, invokes only an approved live model, and records redacted evidence, status: verified, source: workload/app.py}
+    - {id: runtime-secret, name: Model runtime Secret reference, kind: v1 Secret reference, responsibility: Supplies endpoint, model, provider, hardware, and credential without values in source or requests, status: verified, source: charts/sovereign-ai-201/templates/adapter.yaml}
+    - {id: network-policy, name: Governed NetworkPolicy, kind: networking.k8s.io/v1 NetworkPolicy, responsibility: Default-denies the adapter then admits declared clients, DNS, and optional approved model egress, status: verified, source: charts/sovereign-ai-201/templates/networkpolicy.yaml}
+    - {id: model-endpoint, name: Approved OpenAI-compatible model endpoint, kind: external dependency, responsibility: Returns advisory text only after deterministic checks in LIVE mode, status: assumed, source: Deployment-time dependency}
+    - {id: evidence-api, name: Correlated evidence API, kind: HTTP API, responsibility: Exposes in-memory redacted factory evidence by evidence ID, status: verified, source: workload/app.py}
   boundaries:
-    - { id: namespace, name: OpenShift project boundary, kind: trust-boundary, responsibility: Contains workload services and their network path, status: verified, source: infrastructure/oberon/namespace.yaml }
-    - { id: policy-boundary, name: Deterministic policy boundary, kind: authority-boundary, responsibility: Prevents the LLM from deciding residency identity or authority, status: verified, source: infra/opa/policies/data-residency.rego }
+    - {id: contract-boundary, name: Versioned request boundary, kind: schema, responsibility: Rejects incomplete, incompatible, or credential-bearing input before inference, status: verified, source: contracts/governed-request.schema.json}
+    - {id: residency-boundary, name: Data residency policy, kind: deterministic-policy, responsibility: Intersects declared destinations with platform-approved regions and models, status: verified, source: workload/app.py}
+    - {id: credential-boundary, name: Runtime credential boundary, kind: secret, responsibility: Keeps endpoint identity and credential outside source, browser, request, fixtures, and evidence, status: verified, source: charts/sovereign-ai-201/templates/adapter.yaml}
+    - {id: network-boundary, name: Namespace network boundary, kind: network, responsibility: Limits adapter ingress and egress to declared paths, status: verified, source: charts/sovereign-ai-201/templates/networkpolicy.yaml}
+    - {id: authority-boundary, name: Human authority boundary, kind: authority, responsibility: Keeps model output advisory and certification or promotion external, status: verified, source: contracts/governed-response.schema.json}
   external_dependencies:
-    - { id: intel-xeon, name: Intel Xeon CPU, kind: hardware, responsibility: Runs OpenVINO Model Server and Granite inference, status: verified, source: docs/kata-cc-tdx-blocker.md }
+    - {id: openshift, name: Red Hat OpenShift, kind: platform, responsibility: Runs namespace-scoped Services, Deployments, Route, and NetworkPolicy, status: assumed, source: Required live target capability}
+    - {id: intel-model-runtime, name: Approved Intel CPU model runtime, kind: inference, responsibility: Supplies complete model, provider, and hardware identity with advisory output, status: assumed, source: Runtime Secret and live response}
   flows:
-    - id: governed-inference
-      name: Governed sovereign inference
+    - id: qualify-governed-request
+      name: Qualify the governed inference boundary
       kind: request
-      trigger: Platform engineer submits a prompt and jurisdiction context
-      outcome: Approved requests return a Granite response; prohibited requests return a named rejection
+      trigger: Learner submits a versioned request through the Service.
+      outcome: The adapter returns one typed allowed or fail-closed response plus redacted evidence for human review.
       edges:
-        - { from: learner, to: frontend, purpose: submit workload, protocol: HTTPS }
-        - { from: frontend, to: demo-api, purpose: invoke typed APIs, protocol: 'HTTP/JSON :9099' }
-        - { from: demo-api, to: opa, purpose: evaluate residency or model access, protocol: 'OPA REST :8181', evidenceIds: [policy-decision] }
-        - { from: demo-api, to: router, purpose: classify and route approved prompt, protocol: 'OpenAI-compatible HTTP :8001', evidenceIds: [routing-decision] }
-        - { from: router, to: ovms, purpose: run approved Granite inference, protocol: 'HTTP /v3/chat/completions :8080', evidenceIds: [model-response] }
-        - { from: router, to: ledger-gateway, purpose: record classification and routing, protocol: 'REST :28099', evidenceIds: [ledger-proof] }
-        - { from: ledger-gateway, to: ledger, purpose: persist evidence, protocol: 'gRPC :9092', evidenceIds: [ledger-proof] }
-    - id: proof-verification
-      name: Independent proof verification
-      kind: evidence
-      trigger: Reviewer requests ledger verification
-      outcome: API reports chain validity and entries checked
+        - {from: learner, to: presentation, purpose: author or select a bounded condition, protocol: browser or Python client, evidenceIds: [authored-contract]}
+        - {from: presentation, to: adapter-service, purpose: submit request with correlation identity, protocol: 'HTTP JSON POST /api/v1/qualify', evidenceIds: [condition-response]}
+        - {from: adapter-service, to: adapter, purpose: select the qualification workload, protocol: 'Kubernetes Service TCP :8080', evidenceIds: [network-contract]}
+        - {from: runtime-secret, to: adapter, purpose: project model identity and credential only at runtime, protocol: SecretKeyRef environment projection, evidenceIds: [secret-isolation]}
+        - {from: network-policy, to: adapter, purpose: enforce declared ingress and egress, protocol: Kubernetes NetworkPolicy, evidenceIds: [network-contract]}
+        - {from: adapter, to: model-endpoint, purpose: invoke only after schema, injection, residency, and model policy allow, protocol: OpenAI-compatible HTTPS JSON, evidenceIds: [model-participation]}
+        - {from: adapter, to: evidence-api, purpose: store redacted correlation and request hash, protocol: in-process record plus HTTP GET, evidenceIds: [correlated-evidence]}
+        - {from: evidence-api, to: reviewer, purpose: support accept or reject without granting authority, protocol: 'HTTP GET /api/v1/evidence/{id}', evidenceIds: [human-decision]}
+    - id: fail-closed-conditions
+      name: Qualify rejected and unavailable conditions
+      kind: decision
+      trigger: The learner changes residency, input validity, injection content, or dependency availability.
+      outcome: The response contains no model or advisory content and preserves correlation evidence.
       edges:
-        - { from: frontend, to: demo-api, purpose: request proof verification, protocol: 'HTTP GET /api/ledger/verify' }
-        - { from: demo-api, to: ledger-gateway, purpose: verify stored chains, protocol: 'HTTP GET /api/verify', evidenceIds: [ledger-proof] }
+        - {from: adapter, to: evidence-api, purpose: record POLICY_DENIED, MALFORMED_REQUEST, INJECTION_BLOCKED, or DEPENDENCY_UNAVAILABLE, protocol: typed internal record, evidenceIds: [failure-matrix]}
+        - {from: evidence-api, to: reviewer, purpose: expose the failed boundary and absence of model participation, protocol: HTTP JSON, evidenceIds: [failure-matrix, human-decision]}
 operational_pattern:
-  name: Classify, constrain, infer, record, verify
-  rationale: Sovereignty is demonstrated by deterministic controls and reviewable evidence around inference, not by model location alone.
+  name: Map, author, wire, allow, deny, break, review, reclaim
+  rationale: Level 201 is earned by constructing and qualifying the boundary rather than replaying the 101 trace.
   steps:
-    - { id: define, label: Define the governed request, question: 'What data identity jurisdiction and model are in scope?', flowIds: [governed-inference], evidenceIds: [aibom] }
-    - { id: constrain, label: Apply deterministic policy, question: 'Is the destination and model access allowed?', flowIds: [governed-inference], evidenceIds: [policy-decision], decisionId: policy-allow-deny }
-    - { id: route, label: Classify and route, question: 'Is the prompt general sensitive or an injection attempt?', flowIds: [governed-inference], evidenceIds: [routing-decision], decisionId: router-decision }
-    - { id: infer, label: Run approved CPU inference, question: 'Which model and hardware path produced the response?', flowIds: [governed-inference], evidenceIds: [model-response, aibom] }
-    - { id: record, label: Write the receipt, question: 'Can the decision be inspected without trusting the model?', flowIds: [governed-inference], evidenceIds: [ledger-proof] }
-    - { id: verify, label: Verify or fail closed, question: 'Does the evidence chain validate?', flowIds: [proof-verification], evidenceIds: [ledger-proof], decisionId: human-review }
-  changed_condition: Compare an allowed local general prompt with a sensitive cross-border request or injection attempt through the same path.
-  close: The workload earns a sovereign claim only when policy model identity hardware placement and evidence verification agree.
+    - {id: map, label: Map residency and trust, question: Which identity data model network and human authority boundaries are in scope?, flowIds: [qualify-governed-request], evidenceIds: [authored-contract]}
+    - {id: author, label: Author the contract and client, question: Can malformed or credential-bearing input be rejected before inference?, flowIds: [qualify-governed-request, fail-closed-conditions], evidenceIds: [authored-contract, failure-matrix]}
+    - {id: wire, label: Wire the platform controls, question: Do Secret references Service and NetworkPolicy encode the intended boundary without values?, flowIds: [qualify-governed-request], evidenceIds: [secret-isolation, network-contract]}
+    - {id: allow, label: Qualify the allowed path, question: Does the source state prove whether the approved model actually participated?, flowIds: [qualify-governed-request], evidenceIds: [condition-response, model-participation]}
+    - {id: deny, label: Change the residency condition, question: Does policy denial prevent any model output?, flowIds: [fail-closed-conditions], evidenceIds: [failure-matrix]}
+    - {id: break, label: Exercise malformed injection and unavailable paths, question: Does every failed dependency or input remain attributable and fail closed?, flowIds: [fail-closed-conditions], evidenceIds: [failure-matrix]}
+    - {id: review, label: Review correlation and authority, question: Can a human map every outcome to evidence and limitations without exposing sensitive values?, flowIds: [qualify-governed-request], evidenceIds: [correlated-evidence, human-decision]}
+    - {id: reclaim, label: Reclaim the workload, question: Can the learner remove only assigned resources and prove zero residue?, flowIds: [qualify-governed-request], evidenceIds: [reclaim-receipt]}
+  changed_condition: The same contract changes from an approved local destination to policy denial, injection, malformed input, and dependency unavailability; no failed branch may contain model output.
+  close: The named human accepts or rejects the evidence package and records limits; Launchpad independently owns certification and promotion.
 evidence:
-  - { id: aibom, name: Model AIBOM, source: model-lifecycle/aibom/sovereign-granite-3b.aibom.json, collection: 'GET /api/model/aibom', supports: Model origin license adaptation evaluation and provenance hash, status: verified }
-  - { id: policy-decision, name: OPA allow or deny result, source: infra/opa/policies/data-residency.rego, collection: 'POST /api/policies/evaluate', supports: Deny-by-default residency decision, status: verified }
-  - { id: routing-decision, name: Prompt classification, source: inference/semantic-router/router.py, collection: 'POST /api/classify or /api/route', supports: General sensitive-data or prompt-injection classification, status: verified }
-  - { id: model-response, name: Granite inference response, source: infrastructure/oberon/ovms-sovereign-granite.yaml, collection: 'POST /api/route', supports: Approved model participation without decision authority, status: verified }
-  - { id: ledger-proof, name: Ledger chain verification, source: experience/demo/main.py, collection: 'GET /api/ledger/verify and /api/ledger/writers', supports: Integrity and writer counts but not authorization, status: verified }
+  - {id: authored-contract, name: Contract authoring receipt, source: contracts and learner working copy, collection: schema and client validation, supports: Learner constructed the boundary, status: verified}
+  - {id: secret-isolation, name: Secret isolation receipt, source: Helm render and source scan, collection: Secret references exist and no values appear, supports: Runtime credential isolation, status: verified}
+  - {id: network-contract, name: Network boundary receipt, source: Helm render, collection: default deny and declared allow paths, supports: Reviewable connectivity policy, status: verified}
+  - {id: condition-response, name: Typed condition response, source: qualification adapter, collection: POST /api/v1/qualify, supports: Allowed and failed outcomes are distinguishable, status: verified}
+  - {id: model-participation, name: Model participation identity, source: LIVE adapter response only, collection: complete model provider hardware identity and advisory, supports: Named model participation only when LIVE, status: assumed}
+  - {id: failure-matrix, name: Fail-closed matrix, source: adapter tests and runtime calls, collection: denied malformed injection and unavailable outcomes, supports: No unauthorized or fabricated model output, status: verified}
+  - {id: correlated-evidence, name: Redacted evidence record, source: evidence API, collection: correlation ID request hash policy outcome source state and authority, supports: Attributable review without prompt or Secret values, status: verified}
+  - {id: human-decision, name: Human disposition, source: evidence map, collection: named accept or reject with limits, supports: Authority remains human-owned, status: verified}
+  - {id: reclaim-receipt, name: Reclaim receipt, source: learner OpenShift inventory, collection: before and after labeled resources, supports: Assigned workload cleanup, status: assumed}
 decisions:
-  - { id: policy-allow-deny, owner: OPA policy maintained by the platform team, policy: Default deny; allow local processing or approved regions only for non-sensitive data, failClosedBehavior: No matching allow rule returns false and inference must not proceed, status: verified }
-  - { id: router-decision, owner: Semantic router implementation, policy: Block injection; classify sensitive and general prompts; forward only non-injection requests, failClosedBehavior: Injection returns HTTP 400 and backend failure returns HTTP 502, status: verified }
-  - { id: human-review, owner: Platform or governance reviewer, policy: A receipt proves recording and integrity not authorization or execution, failClosedBehavior: Unverified evidence cannot become a live sovereignty claim, status: verified }
+  - {id: contract-acceptance, owner: Qualification adapter, policy: Require the exact versioned request fields and reject secret-like keys, failClosedBehavior: Return MALFORMED_REQUEST before policy or inference, status: verified}
+  - {id: policy-allow-deny, owner: Platform policy configuration, policy: Intersect request destinations and model with platform-approved values, failClosedBehavior: Return POLICY_DENIED with no advisory, status: verified}
+  - {id: injection-boundary, owner: Qualification adapter, policy: Reject declared injection patterns before inference, failClosedBehavior: Return INJECTION_BLOCKED with no advisory, status: verified}
+  - {id: dependency-boundary, owner: Qualification adapter, policy: Require complete LIVE model identity and valid output, failClosedBehavior: Return DEPENDENCY_UNAVAILABLE and OFFLINE with no advisory, status: verified}
+  - {id: human-review, owner: Human governance reviewer, policy: Evidence supports but never grants certification deployment or promotion authority, failClosedBehavior: Missing or mixed evidence remains unqualified, status: verified}
 ai_assessment:
   needed: true
-  kind: mixed
-  rationale: The workload serves approved generative inference while classification residency identity promotion and authority remain deterministic.
-  tasks: [Generate a response from the approved Granite model]
-  inputs: [User prompt after deterministic policy checks]
-  outputs: [Draft natural-language response with model identity]
-  model_identity_source: GET /api/model/aibom plus the live route response model field
-  hardware_identity_source: OpenShift OVMS placement and documented Intel Xeon 6767P host
-  evidence_access: [The model receives only the approved prompt and does not own authority policy]
+  kind: generative-llm
+  rationale: The model may draft a bounded advisory response only after deterministic contract and policy gates; the lab's decisions and evidence do not depend on model judgment.
+  tasks: [Draft one response to an allowed bounded prompt]
+  inputs: [Approved prompt and configured model identity]
+  outputs: [Advisory text]
+  model_identity_source: LIVE response populated from runtime Secret references
+  hardware_identity_source: LIVE runtime Secret plus independently reviewed platform placement
+  evidence_access: [The model receives only the approved prompt and cannot read the evidence store or Secret values]
   action_authority: none
-  validation: [OPA is outside the model, Injection is rejected before inference, Ledger verification is independent]
-  fallback: If live inference or proof is unavailable show checked-in data as REHEARSAL or OFFLINE.
-  final_decision_owner: Human platform or governance reviewer
+  validation: [Response shape is validated, Every failed path forbids model and advisory fields, Human review remains required]
+  fallback: REHEARSAL qualifies deterministic mechanics without model participation; unavailable dependencies return OFFLINE and no advisory.
+  final_decision_owner: Human governance reviewer
 story_mapping:
-  audience_question: Can we prove an AI workload obeyed our rules used an approved model on controlled Intel infrastructure and left reviewable evidence?
-  stakes: [Model location alone does not prove data handling model identity policy or evidence integrity.]
-  architecture_flow_ids: [governed-inference, proof-verification]
-  live_proof_flow_ids: [governed-inference, proof-verification]
-  comparison: Allowed local request versus prohibited cross-border or injection request
-  payoff: Policy inference and proof remain separate and the human can verify all three.
-  next_journey: Open the Sovereign AI 201 lab to build and qualify the same workload.
+  audience_question: Can we build a boundary that proves what was allowed denied or unavailable without letting the model define sovereignty?
+  stakes: [Implicit residency credentials networking failures and authority cannot support a reviewable sovereign workload claim.]
+  architecture_flow_ids: [qualify-governed-request, fail-closed-conditions]
+  live_proof_flow_ids: [qualify-governed-request, fail-closed-conditions]
+  comparison: Allowed local request versus denied injection and unavailable outcomes through the same contract
+  payoff: Correlated evidence preserves source state model participation and human authority across every condition.
+  next_journey: Open the separate Sovereign AI 201 Showroom to author qualify review and reclaim the boundary.

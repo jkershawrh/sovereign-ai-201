@@ -1,0 +1,54 @@
+{{- if .Values.presentation.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sovereign-ai-201-presentation
+  labels:
+    app.kubernetes.io/name: sovereign-ai-201-presentation
+    {{- include "sovereign-ai-201.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: sovereign-ai-201-presentation}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sovereign-ai-201-presentation
+        {{- include "sovereign-ai-201.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: sovereign-ai-201
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: presentation
+          image: {{ include "sovereign-ai-201.image" .Values.presentation.image | quote }}
+          imagePullPolicy: {{ .Values.presentation.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe: {httpGet: {path: /, port: http}, initialDelaySeconds: 2, periodSeconds: 5}
+          resources: {{- toYaml .Values.presentation.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sovereign-ai-201-presentation
+  labels:
+    {{- include "sovereign-ai-201.labels" . | nindent 4 }}
+spec:
+  selector: {app.kubernetes.io/name: sovereign-ai-201-presentation}
+  ports: [{name: http, port: 8080, targetPort: http}]
+{{- if .Values.presentation.routeEnabled }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: sovereign-ai-201-presentation
+  labels:
+    {{- include "sovereign-ai-201.labels" . | nindent 4 }}
+spec:
+  to: {kind: Service, name: sovereign-ai-201-presentation}
+  port: {targetPort: http}
+  tls: {termination: edge, insecureEdgeTerminationPolicy: Redirect}
+{{- end }}
+{{- end }}

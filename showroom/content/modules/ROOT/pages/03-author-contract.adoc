@@ -1,0 +1,16 @@
+= 3. Author the request and response contract
+
+Replace `TODO` in `governed-request.schema.json` and `request.json`. Require a
+contract version, UUID request identity, correlation ID, SPIFFE-shaped workload
+identity, data origin, approved and selected destinations, data classification,
+requested model, bounded prompt, and final human owner.
+
+Do not add passwords, tokens, API keys, or Secret values to the request.
+
+Implement `client.py` so it posts the request to `/api/v1/qualify`, retains the
+typed outcome, then retrieves `/api/v1/evidence/{evidence_id}`. The correlation
+ID must be identical across request, response, and evidence.
+
+Run schema validation before any model call. A malformed document must return
+`MALFORMED_REQUEST`, `model_participated: false`, and no advisory content.
+

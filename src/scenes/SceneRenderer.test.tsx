@@ -16,7 +16,7 @@ describe('SceneRenderer', () => {
   }
 
   it('labels rehearsal data instead of presenting it as live', async () => {
-    const scene: SceneConfig = { id: 'fallback', type: 'live-proof', beat: 'live-proof', title: 'Proof', adapterId: 'sovereign-identity', cta: 'Run live proof', resultFields: [{ key: 'model', label: 'Model' }] }
+    const scene: SceneConfig = { id: 'fallback', type: 'live-proof', beat: 'live-proof', title: 'Proof', adapterId: 'sovereign-allowed', cta: 'Run live proof', resultFields: [{ key: 'outcome', label: 'Outcome' }] }
     render(<SceneRenderer scene={scene} brand={demoConfig.brand} />)
     fireEvent.click(screen.getByRole('button', { name: /run live proof/i }))
     expect(await screen.findByText('rehearsal')).toBeInTheDocument()
@@ -30,10 +30,10 @@ describe('SceneRenderer', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Inspect technical topology' }))
     expect(screen.getByLabelText('Live technical deployment topology')).toBeInTheDocument()
     expect(screen.getByText('OpenShift project')).toBeInTheDocument()
-    expect(screen.getByText('Service :9099')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /inspect the live workload/i }))
-    expect((await screen.findAllByText('Identify the approved workload'))[0]).toBeInTheDocument()
-    expect(await screen.findByRole('button', { name: /next live act/i })).toBeInTheDocument()
+    expect(screen.getAllByText('Service :8080').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: /run the qualification journey/i }))
+    expect((await screen.findAllByText('Qualify the allowed request'))[0]).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /next condition/i })).toBeInTheDocument()
   })
 
   it('renders the statistic-grid scene', () => {
@@ -64,9 +64,9 @@ describe('SceneRenderer', () => {
     const scene = scenes.find((item) => item.type === 'guided-architecture')!
     render(<SceneRenderer scene={scene} brand={demoConfig.brand} />)
     expect(screen.getByText('What must be known before the model is called?')).toBeInTheDocument()
-    expect(screen.queryByText('The request declares prompt, identity, classification, destination, and approved model.')).not.toBeInTheDocument()
+    expect(screen.queryByText('The request declares identity, residency, data class, model, prompt, correlation, and human owner.')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Reveal technical boundary' }))
-    expect(await screen.findByText('The request declares prompt, identity, classification, destination, and approved model.')).toBeInTheDocument()
+    expect(await screen.findByText('The request declares identity, residency, data class, model, prompt, correlation, and human owner.')).toBeInTheDocument()
     expect(document.querySelector('[data-node="frontend"]')).toHaveClass('active')
     fireEvent.click(screen.getByRole('button', { name: 'Ask next question →' }))
     expect(await screen.findByText('Who decides whether this request may proceed?')).toBeInTheDocument()

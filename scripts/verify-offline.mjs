@@ -18,7 +18,7 @@ for (const required of ['redhat.svg', 'intel.png']) {
 }
 
 const lab = await readFile(new URL('lab/index.html', dist), 'utf8')
-if (!lab.includes('Build the governed path') || !lab.includes('Rehearsal fixtures')) {
+if (!lab.includes('Build the governed boundary') || !lab.includes('REHEARSAL proves mechanics only')) {
   throw new Error('Offline lab handoff is missing or incomplete.')
 }
 

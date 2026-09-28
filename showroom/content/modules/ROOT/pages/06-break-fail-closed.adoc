@@ -1,0 +1,16 @@
+= 6. Break the boundary
+
+Exercise three bounded conditions through the same adapter:
+
+* remove a required contract field and require `MALFORMED_REQUEST`;
+* submit an injection phrase and require `INJECTION_BLOCKED`;
+* select the unavailable condition or interrupt only the disposable model path
+  and require `DEPENDENCY_UNAVAILABLE`.
+
+Every result must preserve correlation evidence, set
+`model_participated: false`, omit model-generated content, and name the failed
+boundary. Do not run destructive failure injection against shared
+infrastructure.
+
+Restore the disposable condition and record the rollback result.
+

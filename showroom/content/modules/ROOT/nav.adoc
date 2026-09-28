@@ -1,0 +1,11 @@
+* xref:index.adoc[Build the Governed Inference Boundary]
+* xref:01-prerequisite.adoc[1. Establish the prerequisite]
+* xref:02-map-boundaries.adoc[2. Map residency and trust]
+* xref:03-author-contract.adoc[3. Author the contract]
+* xref:04-wire-controls.adoc[4. Wire policy and platform controls]
+* xref:05-qualify-paths.adoc[5. Qualify allowed and denied paths]
+* xref:06-break-fail-closed.adoc[6. Break the boundary]
+* xref:07-evidence-authority.adoc[7. Review correlated evidence]
+* xref:08-reclaim.adoc[8. Reclaim and prove cleanup]
+* xref:99-conclusion.adoc[Conclusion]
+
