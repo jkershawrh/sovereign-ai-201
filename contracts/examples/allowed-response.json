@@ -1,0 +1,12 @@
+{
+  "contract_version": "sovereign-inference/v1",
+  "request_id": "8da2153c-16ca-47f9-b0ee-6d8b957add4c",
+  "correlation_id": "sovereign-201-allowed-001",
+  "evidence_id": "e5ba4cc6-3647-459b-adfb-78dfef35926a",
+  "source_state": "REHEARSAL",
+  "outcome": "ALLOWED",
+  "policy": {"decision": "ALLOW", "reason": "destination and model are approved", "policy_version": "residency-v1"},
+  "model_participated": false,
+  "authority": "HUMAN_REVIEW_REQUIRED"
+}
+

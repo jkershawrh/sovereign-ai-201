@@ -1,0 +1,12 @@
+{
+  "contract_version": "sovereign-inference/v1",
+  "request_id": "8da2153c-16ca-47f9-b0ee-6d8b957add4c",
+  "correlation_id": "sovereign-201-injection-001",
+  "evidence_id": "b21d3cc6-76ba-49d1-a318-364291b721ff",
+  "source_state": "REHEARSAL",
+  "outcome": "INJECTION_BLOCKED",
+  "policy": {"decision": "DENY", "reason": "prompt injection pattern detected", "policy_version": "residency-v1"},
+  "model_participated": false,
+  "authority": "HUMAN_REVIEW_REQUIRED"
+}
+

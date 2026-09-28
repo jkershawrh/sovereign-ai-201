@@ -1,0 +1,19 @@
+{
+  "evidence_id": "e5ba4cc6-3647-459b-adfb-78dfef35926a",
+  "request_id": "8da2153c-16ca-47f9-b0ee-6d8b957add4c",
+  "correlation_id": "sovereign-201-allowed-001",
+  "collected_at": "2026-09-28T20:30:00Z",
+  "source_state": "REHEARSAL",
+  "request_sha256": "b5a2c96250612366ea272ffac6d9744aaf4b45aac08c4a3f45c2dc6d5612c8c0",
+  "identity": {"subject": "spiffe://workshop.example/learner", "trust_domain": "workshop.example"},
+  "residency": {"data_origin": "local", "approved_regions": ["local", "eu-central"], "destination_region": "local"},
+  "data_classification": "general",
+  "requested_model": "granite-3.2-sovereign",
+  "policy": {"decision": "ALLOW", "reason": "destination and model are approved", "policy_version": "residency-v1"},
+  "outcome": "ALLOWED",
+  "model_participated": false,
+  "model_identity": null,
+  "authority": "HUMAN_REVIEW_REQUIRED",
+  "secret_values_recorded": false
+}
+

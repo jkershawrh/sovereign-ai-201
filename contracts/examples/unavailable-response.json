@@ -1,0 +1,12 @@
+{
+  "contract_version": "sovereign-inference/v1",
+  "request_id": "8da2153c-16ca-47f9-b0ee-6d8b957add4c",
+  "correlation_id": "sovereign-201-unavailable-001",
+  "evidence_id": "984d60fc-9dab-477a-825b-4f5fb905d52a",
+  "source_state": "OFFLINE",
+  "outcome": "DEPENDENCY_UNAVAILABLE",
+  "policy": {"decision": "NOT_EVALUATED", "reason": "required policy dependency is unavailable", "policy_version": "residency-v1"},
+  "model_participated": false,
+  "authority": "HUMAN_REVIEW_REQUIRED"
+}
+

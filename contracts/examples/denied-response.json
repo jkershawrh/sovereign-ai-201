@@ -1,0 +1,12 @@
+{
+  "contract_version": "sovereign-inference/v1",
+  "request_id": "8da2153c-16ca-47f9-b0ee-6d8b957add4c",
+  "correlation_id": "sovereign-201-denied-001",
+  "evidence_id": "150bb36e-e5da-4cd1-a653-d466411ad7bb",
+  "source_state": "REHEARSAL",
+  "outcome": "POLICY_DENIED",
+  "policy": {"decision": "DENY", "reason": "destination region is not approved", "policy_version": "residency-v1"},
+  "model_participated": false,
+  "authority": "HUMAN_REVIEW_REQUIRED"
+}
+

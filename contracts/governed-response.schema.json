@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://demo.redhat-intel.com/sovereign-ai-201/governed-response.schema.json",
+  "title": "Governed inference response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "request_id", "correlation_id", "evidence_id", "source_state", "outcome", "policy", "model_participated", "authority"],
+  "properties": {
+    "contract_version": {"const": "sovereign-inference/v1"},
+    "request_id": {"type": "string", "format": "uuid"},
+    "correlation_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{7,79}$"},
+    "evidence_id": {"type": "string", "format": "uuid"},
+    "source_state": {"enum": ["LIVE", "REHEARSAL", "OFFLINE"]},
+    "outcome": {"enum": ["ALLOWED", "POLICY_DENIED", "MALFORMED_REQUEST", "INJECTION_BLOCKED", "DEPENDENCY_UNAVAILABLE"]},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "reason", "policy_version"],
+      "properties": {
+        "decision": {"enum": ["ALLOW", "DENY", "NOT_EVALUATED"]},
+        "reason": {"type": "string", "minLength": 3, "maxLength": 240},
+        "policy_version": {"type": "string", "minLength": 1, "maxLength": 80}
+      }
+    },
+    "model_participated": {"type": "boolean"},
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "provider", "hardware"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "provider": {"type": "string", "minLength": 1},
+        "hardware": {"type": "string", "minLength": 1}
+      }
+    },
+    "advisory": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "authority": {"const": "HUMAN_REVIEW_REQUIRED"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"model_participated": {"const": true}}, "required": ["model_participated"]},
+      "then": {"required": ["model", "advisory"], "properties": {"source_state": {"const": "LIVE"}, "outcome": {"const": "ALLOWED"}}}
+    },
+    {
+      "if": {"properties": {"outcome": {"enum": ["POLICY_DENIED", "MALFORMED_REQUEST", "INJECTION_BLOCKED", "DEPENDENCY_UNAVAILABLE"]}}, "required": ["outcome"]},
+      "then": {"not": {"anyOf": [{"required": ["model"]}, {"required": ["advisory"]}]}, "properties": {"model_participated": {"const": false}}}
+    }
+  ]
+}
+

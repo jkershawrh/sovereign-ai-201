@@ -4,8 +4,8 @@ source:
   name: sovereign-ai-lab
   kind: repository
   location: /Users/jkershaw/Documents/sovereign-ai-lab
-  revision: d58e1f57803a90ae4bcb92f2f0f6cb468989eb2c
-  discovered_at: 2026-09-28T17:50:37.454Z
+  revision: 05dea04c2faa95b2df426a228b8979ed7f07a098
+  discovered_at: 2026-09-28T20:25:36.419Z
   inspected_artifacts:
     - README.md
     - experience/demo/main.py
@@ -21,11 +21,18 @@ source:
     - model-lifecycle/aibom/sovereign-granite-3b.aibom.json
     - model-lifecycle/promote/promotion-decision.json
     - docs/kata-cc-tdx-blocker.md
+    - .github/workflows/release-components.yml
+    - experience/demo/Dockerfile
+    - experience/frontend/Dockerfile
+    - inference/semantic-router/Dockerfile
   discrepancies:
     - ledger/are-immutable-ledger is pinned at a1b70fb but has local modifications; those changes are excluded from release evidence.
     - README names infrastructure/dev-cluster-1, while this checkout contains the deployment under infrastructure/oberon.
     - The checked-in promotion decision has ledger_status offline and is not a live receipt.
     - TDX host capability is documented, but kata-cc confidential guest execution is blocked; 201 makes no confidential-execution claim.
+    - The source GCL adapter permits inference when OPA is unavailable and treats ledger-write failure as non-fatal; the 201 qualification adapter must fail closed instead of inheriting that demo behavior.
+    - The source component release currently blocks only fixable HIGH/CRITICAL findings; the 201 release must gate the complete vulnerability inventory.
+    - Source revision 05dea04 pins and hardens three source component images, but no current live OpenShift or model run was attached to this factory session.
 intent:
   primary_user: AI platform engineer building a governed sovereign inference workload
   workload: Classify a prompt, enforce jurisdiction and identity policy, run approved Granite inference on Intel Xeon, and verify its evidence chain

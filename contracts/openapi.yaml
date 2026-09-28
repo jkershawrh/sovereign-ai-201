@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  title: Sovereign AI 201 governed inference adapter
+  version: 1.0.0
+paths:
+  /api/v1/qualify:
+    post:
+      summary: Validate policy and run or reject governed inference
+      parameters:
+        - in: query
+          name: condition
+          schema: {type: string, enum: [allowed, denied, injection, malformed, unavailable]}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: ./governed-request.schema.json}
+      responses:
+        "200":
+          description: Typed allowed or fail-closed outcome
+          content:
+            application/json:
+              schema: {$ref: ./governed-response.schema.json}
+        "400":
+          description: Malformed request with typed fail-closed response
+          content:
+            application/json:
+              schema: {$ref: ./governed-response.schema.json}
+  /api/v1/evidence/{evidence_id}:
+    get:
+      summary: Retrieve redacted correlated evidence
+      parameters:
+        - in: path
+          name: evidence_id
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Evidence record
+          content:
+            application/json:
+              schema: {$ref: ./evidence-record.schema.json}
+
