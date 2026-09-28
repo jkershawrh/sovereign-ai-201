@@ -1,0 +1,8 @@
+{
+  "source": "REHEARSAL",
+  "request_id": "rehearsal-allow-001",
+  "policy": { "decision": "ALLOW", "rule": "local processing allowed" },
+  "routing": { "classification": "general", "outcome": "forwarded" },
+  "inference": { "model": "granite-3.2-sovereign", "hardware": "Intel Xeon CPU", "response": "Local processing keeps governed data inside the declared boundary." },
+  "authority": "human-review"
+}

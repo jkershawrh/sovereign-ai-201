@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "vitest run",
+    "test": "vitest run && node --test content-201/tools/lab-check.test.mjs",
     "test:visual": "playwright test",
     "verify:offline": "node scripts/verify-offline.mjs",
-    "check": "npm run test && npm run build && npm run verify:offline",
+    "verify:lab": "node content-201/tools/lab-check.mjs",
+    "check": "npm run test && npm run build && npm run verify:offline && npm run verify:lab",
     "preview": "vite preview"
   },
   "dependencies": {

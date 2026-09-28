@@ -1,0 +1,9 @@
+schema: sovereign-workload/v1
+request_id: REPLACE_ME
+agent_identity: spiffe://REPLACE_ME/platform-engineer
+jurisdiction: local
+destination_region: local
+data_classification: general
+requested_model: granite-3.2-sovereign
+prompt: Explain why local processing supports data sovereignty in one sentence.
+final_decision_owner: human-reviewer

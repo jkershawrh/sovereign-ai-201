@@ -1,0 +1,8 @@
+{
+  "source": "REHEARSAL",
+  "request_ids": ["rehearsal-allow-001", "rehearsal-deny-001"],
+  "chain_valid": true,
+  "entries_checked": 4,
+  "writers": ["semantic-router", "demo-api/opa-bridge"],
+  "grants_authority": false
+}

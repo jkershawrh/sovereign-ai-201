@@ -17,4 +17,9 @@ for (const required of ['redhat.svg', 'intel.png']) {
   if (!logos.includes(required)) throw new Error(`Missing offline logo: ${required}`)
 }
 
+const lab = await readFile(new URL('lab/index.html', dist), 'utf8')
+if (!lab.includes('Build the governed path') || !lab.includes('Rehearsal fixtures')) {
+  throw new Error('Offline lab handoff is missing or incomplete.')
+}
+
 console.log(`Offline assets verified in ${join(dist.pathname)}.`)

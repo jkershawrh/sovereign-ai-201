@@ -1,0 +1,8 @@
+{
+  "source": "REHEARSAL",
+  "request_id": "rehearsal-deny-001",
+  "policy": { "decision": "DENY", "rule": "sensitive personal data cannot route to an unapproved region" },
+  "routing": { "classification": "sensitive_personal", "outcome": "not-authorized" },
+  "inference": null,
+  "authority": "human-review"
+}

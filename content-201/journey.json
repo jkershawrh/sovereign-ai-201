@@ -1,0 +1,17 @@
+{
+  "schema": "sovereign-ai-201-journey/v1",
+  "title": "Build a Governed Sovereign AI Workload",
+  "duration_minutes": 75,
+  "recovery_allowance_minutes": 15,
+  "mode": "live-with-honest-rehearsal-fallback",
+  "stages": [
+    { "id": "00-preflight", "minutes": 8, "produces": "preflight.json", "authority": "learner" },
+    { "id": "01-declare", "minutes": 8, "produces": "workload.yaml", "authority": "learner" },
+    { "id": "02-identify", "minutes": 8, "produces": "model-identity.json", "authority": "model-lifecycle" },
+    { "id": "03-allow-infer", "minutes": 14, "produces": "allowed-result.json", "authority": "OPA then model" },
+    { "id": "04-deny", "minutes": 10, "produces": "denied-result.json", "authority": "OPA" },
+    { "id": "05-verify", "minutes": 10, "produces": "proof-receipt.json", "authority": "independent ledger" },
+    { "id": "06-break-qualify", "minutes": 10, "produces": "failure-record.json", "authority": "learner" },
+    { "id": "07-export-close", "minutes": 7, "produces": "review-package.json", "authority": "human reviewer" }
+  ]
+}
