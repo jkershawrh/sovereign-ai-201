@@ -25,6 +25,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(render.returncode, 0, render.stderr)
         for kind in ("NetworkPolicy", "Service", "Deployment", "Route"):
             self.assertIn(f"kind: {kind}", render.stdout)
+        self.assertIn("name: lab", render.stdout)
         self.assertNotIn("MODEL_API_KEY\n", render.stdout)
 
     def test_defaults_are_rehearsal_fail_closed_and_secret_free(self):
@@ -49,4 +50,3 @@ class PackagingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
