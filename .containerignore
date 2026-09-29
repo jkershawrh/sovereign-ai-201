@@ -12,6 +12,10 @@
 !public/**
 !workload/
 !workload/**
+!showroom/
+!showroom/**
+!showroom-content/
+!showroom-content/**
 !Containerfile
 !nginx.conf
 **/.env*
