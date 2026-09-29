@@ -3,12 +3,12 @@ adapter:
   image:
     repository: ghcr.io/jkershawrh/sovereign-ai-201-adapter
     tag: ""
-    digest: sha256:9b1eb7bb0c5b6bf2888f02566070b6140d4c6b049c31151bf4eac9a1beba1708
+    digest: sha256:868e1ced53d28cf07b02007849356b4f1ff78ff17d1d1dd0c2b04fedd6a20f6f
     pullPolicy: IfNotPresent
 
 presentation:
   image:
     repository: ghcr.io/jkershawrh/sovereign-ai-201-presentation
     tag: ""
-    digest: sha256:f13a56fb7530c16309098270f3399a8ecc5b59d60481595ea7bd181a7424ca31
+    digest: sha256:2baef1ba00a221d223f205d8179a8a6cb1ca3113539b6c2e53364c484fe7545a
     pullPolicy: IfNotPresent
