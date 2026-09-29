@@ -43,7 +43,8 @@ spec:
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: sovereign-ai-201-presentation
+  # Keep the generated <route>-<namespace> hostname within OpenShift limits.
+  name: sovereign-ai-201
   labels:
     {{- include "sovereign-ai-201.labels" . | nindent 4 }}
 spec:
