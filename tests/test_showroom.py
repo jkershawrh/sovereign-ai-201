@@ -13,6 +13,10 @@ class ShowroomTests(unittest.TestCase):
         playbook = yaml.safe_load((SHOWROOM / "default-site.yml").read_text())
         self.assertEqual(playbook["site"]["start_page"], "sovereign-ai-201::index.adoc")
         self.assertEqual(playbook["content"]["sources"], [{"url": "./content", "branches": "HEAD"}])
+        self.assertEqual(
+            playbook["ui"]["bundle"]["url"],
+            "https://github.com/rhpds/rhdp_showroom_theme/releases/download/v2.0.3/ui-bundle.zip",
+        )
 
     def test_lab_is_complete_and_construction_led(self):
         antora = yaml.safe_load((SHOWROOM / "content/antora.yml").read_text())
