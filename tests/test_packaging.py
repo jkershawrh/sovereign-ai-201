@@ -31,6 +31,7 @@ class PackagingTests(unittest.TestCase):
     def test_defaults_are_rehearsal_fail_closed_and_secret_free(self):
         values = yaml.safe_load((CHART / "values.yaml").read_text())
         self.assertEqual(values["adapter"]["mode"], "rehearsal")
+        self.assertEqual(values["adapter"]["dnsEgressCIDR"], "")
         self.assertEqual(values["adapter"]["model"]["secretName"], "")
         self.assertEqual(values["adapter"]["model"]["egressCIDR"], "")
         self.assertEqual(values["adapter"]["model"]["egressNamespace"], "")
@@ -42,6 +43,7 @@ class PackagingTests(unittest.TestCase):
         render = subprocess.run([
             "helm", "template", "sovereign-ai-201", str(CHART),
             "--set", "adapter.mode=live", "--set", "adapter.model.secretName=model-runtime",
+            "--set", "adapter.dnsEgressCIDR=10.128.0.0/14",
             "--set", "adapter.model.egressNamespace=launchpad-flightpath-candidate",
             "--set", "adapter.model.egressPodName=launchpad-candidate-maas",
             "--set", "adapter.model.egressPort=4000",
@@ -55,6 +57,7 @@ class PackagingTests(unittest.TestCase):
         self.assertIn("kubernetes.io/metadata.name: \"launchpad-flightpath-candidate\"", render.stdout)
         self.assertIn("app.kubernetes.io/name: \"launchpad-candidate-maas\"", render.stdout)
         self.assertIn("port: 4000", render.stdout)
+        self.assertIn("10.128.0.0/14", render.stdout)
 
     def test_showroom_terminal_can_reach_the_adapter_without_open_ingress(self):
         render = subprocess.run(

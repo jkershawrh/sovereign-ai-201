@@ -53,3 +53,12 @@ spec:
           {{- end }}
       ports: [{protocol: TCP, port: {{ .Values.adapter.model.egressPort }} }]
     {{- end }}
+    {{- if .Values.adapter.dnsEgressCIDR }}
+    - to:
+        - ipBlock: {cidr: {{ .Values.adapter.dnsEgressCIDR | quote }}}
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+        - {protocol: UDP, port: 5353}
+        - {protocol: TCP, port: 5353}
+    {{- end }}
