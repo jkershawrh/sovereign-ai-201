@@ -117,6 +117,8 @@ def evaluate_policy(value: dict, condition: str) -> dict[str, str]:
 
 def invoke_model(value: dict, identity: dict[str, str]) -> str:
     endpoint = os.environ["MODEL_ENDPOINT"].rstrip("/")
+    if not endpoint.endswith("/chat/completions"):
+        endpoint = f"{endpoint}/chat/completions"
     payload = {
         "model": identity["id"],
         "messages": [{"role": "user", "content": value["prompt"]}],

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from workload.app import EVIDENCE, qualify, validate_request
+from workload.app import EVIDENCE, invoke_model, qualify, validate_request
 from workload.client import build_request
 
 
@@ -67,6 +67,38 @@ class WorkloadTests(unittest.TestCase):
             response, _ = qualify(self.request)
         self.assertEqual(response["outcome"], "DEPENDENCY_UNAVAILABLE")
         self.assertEqual(response["source_state"], "OFFLINE")
+
+    def test_live_model_uses_openai_chat_completions_path(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return json.dumps(
+                    {"choices": [{"message": {"content": "bounded advisory"}}]}
+                ).encode()
+
+        identity = {
+            "id": "granite-3.2-8b-tools",
+            "provider": "litellm",
+            "hardware": "Intel Xeon",
+        }
+        environment = {
+            "MODEL_ENDPOINT": "http://maas.example.test/v1",
+            "MODEL_API_KEY": "test-only",
+        }
+        with patch.dict(os.environ, environment, clear=False):
+            with patch("workload.app.urlopen", return_value=Response()) as request:
+                advisory = invoke_model(self.request, identity)
+
+        self.assertEqual(advisory, "bounded advisory")
+        self.assertEqual(
+            request.call_args.args[0].full_url,
+            "http://maas.example.test/v1/chat/completions",
+        )
 
     def test_evidence_redacts_prompt_and_never_contains_secret(self):
         _, evidence = qualify(self.request)
