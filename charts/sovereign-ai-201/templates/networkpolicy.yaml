@@ -31,6 +31,11 @@ spec:
       ports:
         - {protocol: UDP, port: 53}
         - {protocol: TCP, port: 53}
+        # OpenShift's dns-default Service translates 53 to the daemonset's
+        # named target port 5353. NetworkPolicy enforcement may observe the
+        # post-DNAT port, so admit both without opening any other destination.
+        - {protocol: UDP, port: 5353}
+        - {protocol: TCP, port: 5353}
     {{- if .Values.adapter.model.egressCIDR }}
     - to:
         - ipBlock: {cidr: {{ .Values.adapter.model.egressCIDR | quote }}}

@@ -65,6 +65,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(render.returncode, 0, render.stderr)
         self.assertIn("app.kubernetes.io/name: showroom", render.stdout)
         self.assertNotIn("from: []", render.stdout)
+        self.assertIn("port: 5353", render.stdout)
 
 
 if __name__ == "__main__":
