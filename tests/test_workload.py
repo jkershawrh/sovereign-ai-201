@@ -89,6 +89,7 @@ class WorkloadTests(unittest.TestCase):
         environment = {
             "MODEL_ENDPOINT": "http://maas.example.test/v1",
             "MODEL_API_KEY": "test-only",
+            "MODEL_TIMEOUT_SECONDS": "60",
         }
         with patch.dict(os.environ, environment, clear=False):
             with patch("workload.app.urlopen", return_value=Response()) as request:
@@ -99,6 +100,7 @@ class WorkloadTests(unittest.TestCase):
             request.call_args.args[0].full_url,
             "http://maas.example.test/v1/chat/completions",
         )
+        self.assertEqual(request.call_args.kwargs["timeout"], 60.0)
 
     def test_evidence_redacts_prompt_and_never_contains_secret(self):
         _, evidence = qualify(self.request)

@@ -33,6 +33,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(values["adapter"]["mode"], "rehearsal")
         self.assertEqual(values["adapter"]["model"]["secretName"], "")
         self.assertEqual(values["adapter"]["model"]["egressCIDR"], "")
+        self.assertGreaterEqual(values["adapter"]["model"]["timeoutSeconds"], 60)
         self.assertNotIn("password", str(values).lower())
 
     def test_live_render_uses_secret_references_and_approved_egress(self):
@@ -44,6 +45,8 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(render.returncode, 0, render.stderr)
         self.assertIn("secretKeyRef:", render.stdout)
         self.assertIn('name: "model-runtime"', render.stdout)
+        self.assertIn("name: MODEL_TIMEOUT_SECONDS", render.stdout)
+        self.assertIn('value: "60"', render.stdout)
         self.assertNotIn("api-key-value", render.stdout)
         self.assertIn("203.0.113.10/32", render.stdout)
 

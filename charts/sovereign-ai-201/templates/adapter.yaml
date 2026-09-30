@@ -30,6 +30,7 @@ spec:
             - {name: POLICY_VERSION, value: {{ .Values.adapter.policy.version | quote }}}
             - {name: APPROVED_REGIONS, value: {{ .Values.adapter.policy.approvedRegions | quote }}}
             - {name: APPROVED_MODELS, value: {{ .Values.adapter.policy.approvedModels | quote }}}
+            - {name: MODEL_TIMEOUT_SECONDS, value: {{ .Values.adapter.model.timeoutSeconds | quote }}}
             {{- if .Values.adapter.model.secretName }}
             - name: MODEL_ENDPOINT
               valueFrom: {secretKeyRef: {name: {{ .Values.adapter.model.secretName | quote }}, key: {{ .Values.adapter.model.endpointKey | quote }}}}
@@ -45,4 +46,3 @@ spec:
           readinessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 2, periodSeconds: 5}
           livenessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 5, periodSeconds: 10}
           resources: {{- toYaml .Values.adapter.resources | nindent 12 }}
-

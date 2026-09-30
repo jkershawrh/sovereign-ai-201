@@ -12,6 +12,7 @@ adapter:
     approvedModels: granite-3.2-sovereign
   model:
     secretName: ""
+    timeoutSeconds: 60
     endpointKey: endpoint
     modelKey: model
     providerKey: provider
@@ -34,4 +35,3 @@ presentation:
   resources:
     requests: {cpu: 25m, memory: 32Mi}
     limits: {cpu: 100m, memory: 96Mi}
-
