@@ -10,7 +10,9 @@ SHOWROOM = ROOT / "showroom"
 
 class ShowroomTests(unittest.TestCase):
     def test_showroom_has_independent_playbook(self):
-        self.assertIn("start_page: sovereign-ai-201::index.adoc", (SHOWROOM / "default-site.yml").read_text())
+        playbook = yaml.safe_load((SHOWROOM / "default-site.yml").read_text())
+        self.assertEqual(playbook["site"]["start_page"], "sovereign-ai-201::index.adoc")
+        self.assertEqual(playbook["content"]["sources"], [{"url": "./content", "branches": "HEAD"}])
 
     def test_lab_is_complete_and_construction_led(self):
         antora = yaml.safe_load((SHOWROOM / "content/antora.yml").read_text())
