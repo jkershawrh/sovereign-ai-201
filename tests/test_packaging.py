@@ -33,6 +33,8 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(values["adapter"]["mode"], "rehearsal")
         self.assertEqual(values["adapter"]["model"]["secretName"], "")
         self.assertEqual(values["adapter"]["model"]["egressCIDR"], "")
+        self.assertEqual(values["adapter"]["model"]["egressNamespace"], "")
+        self.assertEqual(values["adapter"]["model"]["egressPodName"], "")
         self.assertGreaterEqual(values["adapter"]["model"]["timeoutSeconds"], 60)
         self.assertNotIn("password", str(values).lower())
 
@@ -40,7 +42,9 @@ class PackagingTests(unittest.TestCase):
         render = subprocess.run([
             "helm", "template", "sovereign-ai-201", str(CHART),
             "--set", "adapter.mode=live", "--set", "adapter.model.secretName=model-runtime",
-            "--set", "adapter.model.egressCIDR=203.0.113.10/32",
+            "--set", "adapter.model.egressNamespace=launchpad-flightpath-candidate",
+            "--set", "adapter.model.egressPodName=launchpad-candidate-maas",
+            "--set", "adapter.model.egressPort=4000",
         ], capture_output=True, text=True)
         self.assertEqual(render.returncode, 0, render.stderr)
         self.assertIn("secretKeyRef:", render.stdout)
@@ -48,7 +52,9 @@ class PackagingTests(unittest.TestCase):
         self.assertIn("name: MODEL_TIMEOUT_SECONDS", render.stdout)
         self.assertIn('value: "60"', render.stdout)
         self.assertNotIn("api-key-value", render.stdout)
-        self.assertIn("203.0.113.10/32", render.stdout)
+        self.assertIn("kubernetes.io/metadata.name: \"launchpad-flightpath-candidate\"", render.stdout)
+        self.assertIn("app.kubernetes.io/name: \"launchpad-candidate-maas\"", render.stdout)
+        self.assertIn("port: 4000", render.stdout)
 
     def test_showroom_terminal_can_reach_the_adapter_without_open_ingress(self):
         render = subprocess.run(

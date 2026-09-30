@@ -36,3 +36,15 @@ spec:
         - ipBlock: {cidr: {{ .Values.adapter.model.egressCIDR | quote }}}
       ports: [{protocol: TCP, port: {{ .Values.adapter.model.egressPort }} }]
     {{- end }}
+    {{- if .Values.adapter.model.egressNamespace }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.adapter.model.egressNamespace | quote }}
+          {{- if .Values.adapter.model.egressPodName }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.adapter.model.egressPodName | quote }}
+          {{- end }}
+      ports: [{protocol: TCP, port: {{ .Values.adapter.model.egressPort }} }]
+    {{- end }}

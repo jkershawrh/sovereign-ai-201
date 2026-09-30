@@ -19,6 +19,8 @@ adapter:
     hardwareKey: hardware
     apiKeyKey: api-key
     egressCIDR: ""
+    egressNamespace: ""
+    egressPodName: ""
     egressPort: 443
   resources:
     requests: {cpu: 100m, memory: 128Mi}
