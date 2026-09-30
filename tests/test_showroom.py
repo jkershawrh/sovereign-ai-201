@@ -42,6 +42,59 @@ class ShowroomTests(unittest.TestCase):
         for path in (ROOT / "lab/starter").iterdir():
             self.assertIn("TODO", path.read_text(), path.name)
 
+    def test_journey_is_story_led_and_follows_show_learn_do_prove(self):
+        pages = SHOWROOM / "content/modules/ROOT/pages"
+        index = (pages / "index.adoc").read_text()
+        self.assertIn("claims analyst", index.lower())
+        self.assertIn("customer outcome", index.lower())
+
+        text = "\n".join(path.read_text() for path in pages.glob("*.adoc"))
+        for phase in ("Show", "Learn", "Do", "Prove"):
+            self.assertIn(f"== {phase}", text)
+
+    def test_each_construction_stage_has_an_executable_participant_action(self):
+        pages = SHOWROOM / "content/modules/ROOT/pages"
+        stage_pages = [
+            pages / f"{number:02d}-{slug}.adoc"
+            for number, slug in (
+                (1, "prerequisite"),
+                (2, "map-boundaries"),
+                (3, "author-contract"),
+                (4, "wire-controls"),
+                (5, "qualify-paths"),
+                (6, "break-fail-closed"),
+                (7, "evidence-authority"),
+                (8, "reclaim"),
+            )
+        ]
+        for page in stage_pages:
+            self.assertIn('[source,bash,role="execute"]', page.read_text(), page.name)
+
+        execute_count = sum(
+            path.read_text().count('role="execute"') for path in pages.glob("*.adoc")
+        )
+        self.assertGreaterEqual(execute_count, 12)
+
+    def test_operator_and_inference_claims_are_exercised_honestly(self):
+        pages = SHOWROOM / "content/modules/ROOT/pages"
+        controls = (pages / "04-wire-controls.adoc").read_text()
+        self.assertIn("OpenShift Console", controls)
+        self.assertIn("Workloads", controls)
+        self.assertIn("NetworkPolicies", controls)
+
+        qualify = (pages / "05-qualify-paths.adoc").read_text()
+        self.assertIn("model_participated", qualify)
+        self.assertIn("source_state", qualify)
+        self.assertIn("LIVE", qualify)
+        self.assertIn("REHEARSAL", qualify)
+        self.assertIn("DEPENDENCY_UNAVAILABLE", qualify)
+
+    def test_reclaim_defines_participant_and_platform_ownership(self):
+        text = (SHOWROOM / "content/modules/ROOT/pages/08-reclaim.adoc").read_text()
+        self.assertIn("participant-owned", text)
+        self.assertIn("Launchpad-owned", text)
+        self.assertIn("zero", text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

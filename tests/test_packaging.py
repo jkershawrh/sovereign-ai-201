@@ -47,6 +47,16 @@ class PackagingTests(unittest.TestCase):
         self.assertNotIn("api-key-value", render.stdout)
         self.assertIn("203.0.113.10/32", render.stdout)
 
+    def test_showroom_terminal_can_reach_the_adapter_without_open_ingress(self):
+        render = subprocess.run(
+            ["helm", "template", "sovereign-ai-201", str(CHART)],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(render.returncode, 0, render.stderr)
+        self.assertIn("app.kubernetes.io/name: showroom", render.stdout)
+        self.assertNotIn("from: []", render.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

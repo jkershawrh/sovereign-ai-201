@@ -1,15 +1,52 @@
-= 4. Wire policy and platform controls
+= 4. Inspect the OpenShift controls
 
-Complete the Deployment fragment so model endpoint, model ID, provider,
-hardware identity, and credential arrive only through `secretKeyRef`. An
-environment owner creates the named Secret outside source control; learners
-never print or retrieve its values.
+== Show
 
-Complete the Service with a stable namespace-local port. Complete two
-NetworkPolicy objects: default-deny the adapter, then admit only the learner and
-presentation clients, DNS, and the approved model endpoint CIDR and port.
+Launchpad has already installed the shared qualification adapter for this seat.
+Your job is to verify the platform controls without printing the runtime Secret.
 
-Configure platform-approved regions and models independently from the request.
-The request cannot approve its own destination. Render the chart and inspect
-references, selectors, ports, and egress before deployment.
+== Learn
 
+The Deployment receives endpoint, model, provider, hardware identity, and
+credential through `secretKeyRef`. A Service provides a stable in-namespace
+path. NetworkPolicies constrain ingress and egress. These controls complement
+policy; they do not let a request approve its own destination.
+
+== Do
+
+Inspect only references, selectors, ports, and policy names. This command never
+reads Secret data.
+
+[source,bash,role="execute"]
+----
+oc get deploy sovereign-ai-201-adapter -o json | python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+c=d["spec"]["template"]["spec"]["containers"][0]
+print("deployment:", d["metadata"]["name"])
+print("service-account:", d["spec"]["template"]["spec"].get("serviceAccountName"))
+for e in c.get("env", []):
+    if "valueFrom" in e: print(e["name"], "<-", e["valueFrom"]["secretKeyRef"]["name"]+"/"+e["valueFrom"]["secretKeyRef"]["key"])
+'
+oc get service sovereign-ai-201-adapter -o custom-columns=NAME:.metadata.name,PORT:.spec.ports[0].port,TARGET:.spec.ports[0].targetPort
+oc get networkpolicy -l app.kubernetes.io/part-of=sovereign-ai-201
+----
+
+Open the **OpenShift Console** tab and select **Workloads → Deployments →
+sovereign-ai-201-adapter**. Then inspect **Networking → NetworkPolicies** in
+your assigned project. The Console is an operator view of the same resources;
+it is not a separate operator dependency and should not expose Secret values.
+
+== Prove
+
+Confirm that the adapter, Service, and at least one NetworkPolicy exist in your
+namespace and that you cannot list cluster nodes.
+
+[source,bash,role="execute"]
+----
+test "$(oc get deploy sovereign-ai-201-adapter -o jsonpath='{.status.readyReplicas}')" -ge 1
+test "$(oc get service sovereign-ai-201-adapter -o jsonpath='{.spec.ports[0].port}')" = "8080"
+test "$(oc get networkpolicy -l app.kubernetes.io/part-of=sovereign-ai-201 -o name | wc -l | tr -d ' ')" -ge 1
+test "$(oc auth can-i get nodes)" = "no"
+echo "PASS: namespace controls exist and the participant is not cluster-wide"
+----

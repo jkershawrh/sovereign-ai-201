@@ -76,6 +76,13 @@ describe('SceneRenderer', () => {
     expect(scenes.length).toBeLessThanOrEqual(7)
   })
 
+  it('anchors the Story and lab handoff in the same Northstar customer case', () => {
+    const serialized = JSON.stringify(demoConfig)
+    expect(serialized).toContain('Northstar Claims')
+    expect(serialized).toContain('claims analyst')
+    expect(serialized).toContain('The Case That Could Not Leave the Region')
+  })
+
   it('includes the full progressive proof arc before the lab handoff', () => {
     expect(scenes.some((scene) => scene.type === 'guided-architecture')).toBe(true)
     expect(scenes.some((scene) => scene.type === 'live-journey')).toBe(true)

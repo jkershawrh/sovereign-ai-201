@@ -1,15 +1,56 @@
-= 2. Map residency and trust boundaries
+= 2. Map the Northstar boundary
 
-Before writing YAML, name the boundary you intend to enforce:
+== Show
 
-* data origin and the platform-approved destination regions;
-* workload subject and trust domain;
-* approved model identity, provider, and Intel hardware class;
-* the OpenShift project, Service path, and permitted model egress;
-* evidence storage and the named human reviewer.
+Northstar's general case summary may remain in the `local` region and use the
+approved Granite route. Personal data sent to an unapproved region must stop
+before inference. The claims analyst—not the model—owns the final decision.
 
-Draw the request path from learner client → Service → qualification adapter →
-approved model. Draw policy and evidence as separate responsibilities. The model
-may draft an advisory response; it cannot approve residency, change policy,
-write credentials, certify the lab, or authorize promotion.
+== Learn
 
+A governed request needs independent facts about identity, residency, data
+classification, model choice, evidence, and authority. The request may ask for
+a destination; it cannot add that destination to platform policy. The model
+may draft advisory text; it cannot change policy, reveal credentials, certify
+the lab, or approve a claim.
+
+== Do
+
+Write the boundary map before writing the request.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/boundary-map.json" <<'PY'
+import json, pathlib, sys
+boundary = {
+  "customer": "Northstar Claims",
+  "use_case": "draft a claims case summary",
+  "identity": {"subject": "spiffe://northstar.example/workload/claims-assistant", "trust_domain": "northstar.example"},
+  "data_origin": "local",
+  "platform_approved_regions": ["local", "eu-central"],
+  "approved_model": "granite-3.2-sovereign",
+  "service_path": "sovereign-ai-201-adapter:8080",
+  "evidence_owner": "northstar-risk-review",
+  "final_decision_owner": "claims-analyst"
+}
+pathlib.Path(sys.argv[1]).write_text(json.dumps(boundary, indent=2) + "\n")
+print(json.dumps(boundary, indent=2))
+PY
+----
+
+== Prove
+
+Verify that the model and human have different responsibilities.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/boundary-map.json" <<'PY'
+import json, pathlib, sys
+b = json.loads(pathlib.Path(sys.argv[1]).read_text())
+assert b["approved_model"]
+assert b["final_decision_owner"] == "claims-analyst"
+assert b["evidence_owner"] != b["final_decision_owner"]
+assert "local" in b["platform_approved_regions"]
+print("PASS: model route, evidence review, and human authority are separate")
+PY
+----

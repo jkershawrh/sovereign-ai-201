@@ -1,16 +1,59 @@
-= 3. Author the request and response contract
+= 3. Author the governed request
 
-Replace `TODO` in `governed-request.schema.json` and `request.json`. Require a
-contract version, UUID request identity, correlation ID, SPIFFE-shaped workload
-identity, data origin, approved and selected destinations, data classification,
-requested model, bounded prompt, and final human owner.
+== Show
 
-Do not add passwords, tokens, API keys, or Secret values to the request.
+The contract makes the facts required for a decision explicit. A prompt alone
+does not carry identity, residency, model approval, correlation, or final human
+ownership.
 
-Implement `client.py` so it posts the request to `/api/v1/qualify`, retains the
-typed outcome, then retrieves `/api/v1/evidence/{evidence_id}`. The correlation
-ID must be identical across request, response, and evidence.
+== Learn
 
-Run schema validation before any model call. A malformed document must return
-`MALFORMED_REQUEST`, `model_participated: false`, and no advisory content.
+The adapter accepts `sovereign-inference/v1`. It rejects missing and extra
+fields, invalid UUIDs, credential-bearing fields, unbounded prompts, and an
+incomplete identity before any model call.
 
+== Do
+
+Create Northstar's general-data request. The IDs are unique to your run; no
+password, token, API key, or Secret value is included.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/request.json" <<'PY'
+import json, pathlib, sys, uuid
+request_id = str(uuid.uuid4())
+request = {
+  "contract_version": "sovereign-inference/v1",
+  "request_id": request_id,
+  "correlation_id": "northstar-" + request_id.split("-")[0],
+  "identity": {"subject": "spiffe://northstar.example/workload/claims-assistant", "trust_domain": "northstar.example"},
+  "residency": {"data_origin": "local", "approved_regions": ["local", "eu-central"], "destination_region": "local"},
+  "data_classification": "general",
+  "requested_model": "granite-3.2-sovereign",
+  "prompt": "Draft a three-bullet case summary from the approved, non-personal claim facts.",
+  "final_decision_owner": "claims-analyst"
+}
+pathlib.Path(sys.argv[1]).write_text(json.dumps(request, indent=2) + "\n")
+print(json.dumps(request, indent=2))
+PY
+----
+
+== Prove
+
+Run a local preflight that checks the exact contract shape and rejects
+credential-bearing fields before the request reaches the service.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/request.json" <<'PY'
+import json, pathlib, re, sys, uuid
+r = json.loads(pathlib.Path(sys.argv[1]).read_text())
+required = {"contract_version","request_id","correlation_id","identity","residency","data_classification","requested_model","prompt","final_decision_owner"}
+assert set(r) == required
+uuid.UUID(r["request_id"])
+assert r["contract_version"] == "sovereign-inference/v1"
+assert r["identity"]["subject"].startswith("spiffe://")
+assert not re.search(r"password|secret|token|api[_-]?key|authorization", json.dumps(r), re.I)
+print("PASS: the request is versioned, correlated, bounded, and credential-free")
+PY
+----

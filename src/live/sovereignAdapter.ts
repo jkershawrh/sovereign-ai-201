@@ -26,12 +26,12 @@ function governedRequest(condition: Condition) {
     contract_version: 'sovereign-inference/v1',
     request_id: id,
     correlation_id: `demo-${condition}-${id}`,
-    identity: { subject: 'spiffe://workshop.example/presenter', trust_domain: 'workshop.example' },
+    identity: { subject: 'spiffe://northstar.example/workload/claims-assistant', trust_domain: 'northstar.example' },
     residency: { data_origin: 'local', approved_regions: ['local', 'eu-central'], destination_region: destination },
     data_classification: condition === 'denied' ? 'sensitive_personal' : 'general',
     requested_model: 'granite-3.2-sovereign',
-    prompt: 'Explain why deterministic policy must precede model inference.',
-    final_decision_owner: 'human-reviewer',
+    prompt: 'Draft a three-bullet case summary from the approved, non-personal claim facts.',
+    final_decision_owner: 'claims-analyst',
   }
 }
 

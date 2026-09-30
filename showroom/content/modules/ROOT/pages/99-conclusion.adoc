@@ -1,10 +1,20 @@
 = Conclusion
 
-You built the governed inference boundary rather than merely tracing it. Your
-review package now contains authored contracts, platform controls, allowed and
-fail-closed outcomes, correlated redacted evidence, a human disposition, and a
-reclaim receipt.
+Northstar began with a business requirement: use AI to accelerate a claims
+summary without letting the prompt decide its own identity, region, model, or
+authority. You showed the running boundary, learned which controls are
+independent, authored and exercised the request, and proved allowed, denied,
+malformed, injection, unavailable, evidence, authority, and cleanup behavior.
 
-The honest closing statement is bounded: deterministic policy constrained the
-request; a model participated only when a `LIVE` response proves it; evidence
-supports human review; and certification remains an independent Launchpad gate.
+The honest closing statement remains bounded:
+
+* deterministic policy constrained the tested request;
+* a model participated only if the response proved `LIVE`, complete model
+  identity, advisory content, and `model_participated: true`;
+* redacted evidence supported a named human review without storing the prompt
+  or Secret values;
+* participant cleanup did not impersonate Launchpad reclaim; and
+* certification remains an independent platform gate.
+
+That is the difference between a chatbot that answers and a governed inference
+boundary that can be reviewed.

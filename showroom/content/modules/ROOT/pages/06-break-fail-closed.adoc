@@ -1,16 +1,61 @@
-= 6. Break the boundary
+= 6. Break the boundary safely
 
-Exercise three bounded conditions through the same adapter:
+== Show
 
-* remove a required contract field and require `MALFORMED_REQUEST`;
-* submit an injection phrase and require `INJECTION_BLOCKED`;
-* select the unavailable condition or interrupt only the disposable model path
-  and require `DEPENDENCY_UNAVAILABLE`.
+A trustworthy path must explain failure, not merely celebrate success. You will
+exercise malformed input, prompt injection, and dependency unavailability
+through the same adapter without disrupting shared infrastructure.
 
-Every result must preserve correlation evidence, set
-`model_participated: false`, omit model-generated content, and name the failed
-boundary. Do not run destructive failure injection against shared
-infrastructure.
+== Learn
 
-Restore the disposable condition and record the rollback result.
+All three branches must preserve correlation evidence, set
+`model_participated: false`, omit advisory content, and name the failed
+boundary. A typed denial is evidence; a timeout or invented success is not.
 
+== Do
+
+Remove the required model field and submit the malformed request.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/request.json" "$LAB_DIR/malformed-request.json" <<'PY'
+import json, pathlib, sys
+r = json.loads(pathlib.Path(sys.argv[1]).read_text()); r.pop("requested_model")
+pathlib.Path(sys.argv[2]).write_text(json.dumps(r, indent=2) + "\n")
+PY
+curl -sS -X POST "$ADAPTER_URL/api/v1/qualify" -H 'Content-Type: application/json' \
+  --data-binary @"$LAB_DIR/malformed-request.json" \
+  | tee "$LAB_DIR/malformed-response.json" | python3 -m json.tool
+----
+
+Exercise the bounded injection and unavailable-dependency conditions. These are
+adapter exercises, not destructive changes to the shared model or cluster.
+
+[source,bash,role="execute"]
+----
+for condition in injection unavailable; do
+  curl -fsS -X POST "$ADAPTER_URL/api/v1/qualify?condition=$condition" \
+    -H 'Content-Type: application/json' --data-binary @"$LAB_DIR/request.json" \
+    | tee "$LAB_DIR/$condition-response.json" | python3 -m json.tool
+done
+----
+
+== Prove
+
+Assert the exact fail-closed outcomes and absence of generated content.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+expected = {"malformed":"MALFORMED_REQUEST", "injection":"INJECTION_BLOCKED", "unavailable":"DEPENDENCY_UNAVAILABLE"}
+for name, outcome in expected.items():
+    r = json.loads((root / f"{name}-response.json").read_text())
+    assert r["outcome"] == outcome, (name, r["outcome"])
+    assert r["model_participated"] is False
+    assert "advisory" not in r and "model" not in r
+    assert r["evidence_id"] and r["correlation_id"]
+print("PASS: malformed, injection, and unavailable conditions all failed closed")
+PY
+----

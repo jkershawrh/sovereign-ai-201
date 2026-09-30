@@ -1,15 +1,71 @@
-= 7. Review correlated evidence and human authority
+= 7. Verify evidence and retain human authority
 
-Fetch the evidence record for each condition. Verify request ID, correlation ID,
-request hash, identity, residency, policy decision, source state, outcome, model
-participation, and collection time. Confirm the prompt and Secret values are not
-stored.
+== Show
 
-Complete `evidence-map.md` with one claim and one limit per condition. The
-reviewer—not the model, policy engine, adapter, or evidence store—records accept
-or reject. A valid receipt proves the recorded boundary behavior; it does not
-grant deployment, certification, or promotion authority.
+Each decision returned an evidence ID. A reviewer can use it to verify request
+identity, correlation, residency, policy, source state, outcome, and model
+participation without storing the prompt or Secret values.
 
-Run `python3 lab/qualify_submission.py <your-working-directory>` and resolve
-every remaining TODO before review.
+== Learn
 
+Evidence integrity and ordering are not approval. The model, policy engine,
+adapter, and evidence store all lack final authority. The named claims analyst
+must record accept or reject and the limits of the evidence.
+
+== Do
+
+Retrieve the evidence behind all five decisions.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR" "$ADAPTER_URL" <<'PY'
+import json, pathlib, sys, urllib.request
+root, base = pathlib.Path(sys.argv[1]), sys.argv[2]
+for name in ("allowed", "denied", "malformed", "injection", "unavailable"):
+    response = json.loads((root / f"{name}-response.json").read_text())
+    with urllib.request.urlopen(f"{base}/api/v1/evidence/{response['evidence_id']}") as reply:
+        evidence = json.load(reply)
+    (root / f"{name}-evidence.json").write_text(json.dumps(evidence, indent=2) + "\n")
+    print(name, evidence["outcome"], evidence["correlation_id"])
+PY
+----
+
+Record a human decision brief. This does not promote or certify the workload.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/human-decision.json" <<'PY'
+import json, pathlib, sys
+decision = {
+  "owner": "claims-analyst",
+  "disposition": "accept-for-lab-review",
+  "claim": "policy constrained the tested Northstar requests",
+  "limits": ["not a production approval", "model participation depends on source_state", "not a sovereignty certification"]
+}
+pathlib.Path(sys.argv[1]).write_text(json.dumps(decision, indent=2) + "\n")
+print(json.dumps(decision, indent=2))
+PY
+----
+
+== Prove
+
+Correlate every response and require redacted evidence.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+for name in ("allowed", "denied", "malformed", "injection", "unavailable"):
+    response = json.loads((root / f"{name}-response.json").read_text())
+    evidence = json.loads((root / f"{name}-evidence.json").read_text())
+    assert response["evidence_id"] == evidence["evidence_id"]
+    assert response["request_id"] == evidence["request_id"]
+    assert response["correlation_id"] == evidence["correlation_id"]
+    assert evidence["secret_values_recorded"] is False
+    assert "prompt" not in evidence and "advisory" not in evidence
+decision = json.loads((root / "human-decision.json").read_text())
+assert decision["owner"] == "claims-analyst" and decision["limits"]
+print("PASS: five decisions are correlated, redacted, and bounded by human authority")
+PY
+----

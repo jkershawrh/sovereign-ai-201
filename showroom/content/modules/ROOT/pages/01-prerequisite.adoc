@@ -1,15 +1,54 @@
-= 1. Establish the prerequisite
+= 1. Establish the governed session
 
-Sovereign AI 101 or equivalent trace literacy is the prerequisite. It teaches
-you to distinguish policy, inference, evidence, and human authority.
+== Show
 
-Do not copy Sovereign AI 101 completion evidence into this lab. A 101 receipt is
-not 201 construction work. Your 201 proof begins with the files you author in
-this session.
+The qualification adapter is already provisioned in your assigned OpenShift
+project. It reports whether this seat is `LIVE`, `REHEARSAL`, or `OFFLINE`.
+That label—not the lab prose—determines what you may claim.
 
-Copy `lab/starter/` to a personal working directory. Preserve its original TODO
-state so a reviewer can distinguish the starter from your completed work.
+== Learn
 
-Record the session source state as `LIVE`, `REHEARSAL`, or `OFFLINE`. Only a
-current response from the attached OpenShift workload may be called `LIVE`.
+Sovereign AI 101 or equivalent trace literacy is the prerequisite. A 101
+receipt teaches you how to read policy, inference, evidence, and human
+authority. It is not 201 construction evidence. Your proof begins with the
+artifacts and responses collected in this session.
 
+Do not copy a 101 receipt into this review package: it is prerequisite context,
+not 201 construction work.
+
+== Do
+
+Create an isolated participant workspace, discover your namespace, and ask the
+adapter for its current source state.
+
+[source,bash,role="execute"]
+----
+export LAB_NAMESPACE="$(oc project -q)"
+export LAB_DIR="$HOME/sovereign-ai-201"
+export ADAPTER_URL="http://sovereign-ai-201-adapter:8080"
+mkdir -p "$LAB_DIR"
+curl -fsS "$ADAPTER_URL/healthz" | tee "$LAB_DIR/health.json" | python3 -m json.tool
+----
+
+== Prove
+
+Record the namespace and refuse to continue if the adapter is unhealthy or the
+source state is missing.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/health.json" "$LAB_NAMESPACE" <<'PY'
+import json, pathlib, sys
+health = json.loads(pathlib.Path(sys.argv[1]).read_text())
+assert health["status"] == "ok"
+assert health["source_state"] in {"LIVE", "REHEARSAL", "OFFLINE"}
+pathlib.Path(sys.argv[1]).with_name("session.json").write_text(
+    json.dumps({"namespace": sys.argv[2], "source_state": health["source_state"]}, indent=2) + "\n"
+)
+print(f"PASS: {sys.argv[2]} is {health['source_state']}")
+PY
+----
+
+Only a current response with `source_state: LIVE`, complete model identity, and
+`model_participated: true` proves model participation. `REHEARSAL` proves the
+deterministic boundary mechanics without claiming inference.

@@ -1,15 +1,74 @@
-= 5. Qualify allowed and denied paths
+= 5. Run the allow and deny decisions
 
-Run an allowed local, general-data request. Preserve the policy decision,
-source state, model participation flag, model identity when actually live,
-correlation ID, request hash, and evidence ID.
+== Show
 
-Then change only the destination to a region not approved by the platform.
-Require `POLICY_DENIED`, `model_participated: false`, and no `model` or
-`advisory` field. The policy result—not model preference—must explain the
-changed outcome.
+Two requests tell the story. The first stays local and may reach the approved
+model. The second changes only the destination and data classification; it must
+stop before inference.
 
-In `REHEARSAL`, an allowed request qualifies the deterministic boundary but does
-not claim that the model ran. Only `LIVE` with complete runtime identity may set
-`model_participated: true`.
+== Learn
 
+`ALLOWED` proves that deterministic policy accepted the request. It proves
+inference only when `source_state` is `LIVE`, `model_participated` is true, a
+complete model identity is present, and advisory text is returned. In
+`REHEARSAL`, the same response proves boundary mechanics, not a model call. A
+missing live dependency must return `DEPENDENCY_UNAVAILABLE`, never fabricated
+advisory text.
+
+== Do
+
+Submit the eligible request and preserve the complete response.
+
+[source,bash,role="execute"]
+----
+curl -fsS -X POST "$ADAPTER_URL/api/v1/qualify" \
+  -H 'Content-Type: application/json' \
+  --data-binary @"$LAB_DIR/request.json" \
+  | tee "$LAB_DIR/allowed-response.json" | python3 -m json.tool
+----
+
+Create the changed request without changing identity, model, prompt, or human
+owner, then submit it.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/request.json" "$LAB_DIR/denied-request.json" <<'PY'
+import json, pathlib, sys, uuid
+r = json.loads(pathlib.Path(sys.argv[1]).read_text())
+r["request_id"] = str(uuid.uuid4())
+r["correlation_id"] = "northstar-denied-" + r["request_id"].split("-")[0]
+r["residency"]["destination_region"] = "unapproved-region"
+r["data_classification"] = "sensitive_personal"
+pathlib.Path(sys.argv[2]).write_text(json.dumps(r, indent=2) + "\n")
+PY
+curl -fsS -X POST "$ADAPTER_URL/api/v1/qualify" \
+  -H 'Content-Type: application/json' \
+  --data-binary @"$LAB_DIR/denied-request.json" \
+  | tee "$LAB_DIR/denied-response.json" | python3 -m json.tool
+----
+
+== Prove
+
+Classify the result honestly. This assertion accepts a valid rehearsal and a
+valid live response, but never confuses the two.
+
+[source,bash,role="execute"]
+----
+python3 - "$LAB_DIR/allowed-response.json" "$LAB_DIR/denied-response.json" <<'PY'
+import json, pathlib, sys
+allowed, denied = [json.loads(pathlib.Path(p).read_text()) for p in sys.argv[1:]]
+assert allowed["outcome"] in {"ALLOWED", "DEPENDENCY_UNAVAILABLE"}
+if allowed["source_state"] == "LIVE":
+    assert allowed["outcome"] == "ALLOWED"
+    assert allowed["model_participated"] is True
+    assert all(allowed["model"].get(k) for k in ("id", "provider", "hardware"))
+    assert allowed.get("advisory")
+else:
+    assert allowed["model_participated"] is False
+    assert "advisory" not in allowed
+assert denied["outcome"] == "POLICY_DENIED"
+assert denied["model_participated"] is False
+assert "advisory" not in denied and "model" not in denied
+print(f"PASS: eligible={allowed['source_state']}/{allowed['outcome']}; changed=POLICY_DENIED before inference")
+PY
+----

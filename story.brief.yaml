@@ -5,7 +5,7 @@ presentation:
   audience: AI platform engineers and governance reviewers
   desired_decision: Adopt the fail-closed governed inference boundary as the Sovereign AI 201 construction baseline
   duration_minutes: 7
-  core_tension: A local model is not a governed workload until its contract, destinations, credentials, failures, evidence, and decision owner are explicit.
+  core_tension: Northstar Claims needs an AI-generated case summary, but a local model is not a governed workload until its contract, destinations, credentials, failures, evidence, and claims-analyst authority are explicit.
   cta: Open the separate Showroom and construct, qualify, review, and reclaim the same boundary.
 source_material:
   mode: repository
@@ -24,7 +24,7 @@ architecture:
   critical_flows: [qualify-governed-request, fail-closed-conditions]
   omitted_from_main_story: [Model training internals, Confidential guest and TDX attestation, Certification and promotion authority]
 beats:
-  - {beat: ordinary-world, claim: A local endpoint does not prove a governed sovereign workload.}
+  - {beat: ordinary-world, claim: A Northstar Claims analyst needs a case summary, but a local endpoint does not prove a governed sovereign workload.}
   - {beat: stakes, claim: Implicit residency credentials reachability failure behavior and authority make the claim unreviewable.}
   - {beat: reframe, claim: Move sovereignty into a versioned observable inference boundary.}
   - {beat: system-reveal, claim: Separate request validation deterministic policy network and Secret controls inference evidence and human authority.}

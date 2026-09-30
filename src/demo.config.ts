@@ -31,8 +31,8 @@ export const demoConfig: DemoConfig = {
   },
   acts: [
     { id: 'story', label: '00', title: 'The sovereignty gap', scenes: [
-      { id: 'intro', type: 'intro', beat: 'ordinary-world', title: 'The model is local. Is the workload sovereign?', subtitle: 'Location is a claim. Governance requires proof.', speakerPrompt: 'Open with the business question. A local endpoint does not tell us which policy ran, which model answered, where data could go, or whether the evidence can be verified.' },
-      { id: 'reframe', type: 'reframe', beat: 'stakes', eyebrow: 'The implementation decision', title: 'Move sovereignty into the request path', before: 'Trust the deployment location', after: 'Prove each governed decision', detail: 'Separate deterministic policy, model inference, evidence recording, and human authority.', speakerPrompt: 'The reframe is architectural: sovereignty becomes an observable workload behavior, not a hosting label.' },
+      { id: 'intro', type: 'intro', beat: 'ordinary-world', title: 'The Case That Could Not Leave the Region', subtitle: 'Northstar Claims needs an AI case summary—but location alone is not governance.', speakerPrompt: 'Open with the business question: Northstar Claims has a claims analyst who wants faster summaries, but the prompt may contain personal data. A local endpoint does not tell us which policy ran, which model answered, where data could go, or whether the evidence can be verified.' },
+      { id: 'reframe', type: 'reframe', beat: 'stakes', eyebrow: 'The Northstar decision', title: 'Move sovereignty into the request path', before: 'Trust the deployment location', after: 'Prove each governed decision', detail: 'Keep the claims analyst in authority while deterministic policy, model inference, and evidence remain independently reviewable.', speakerPrompt: 'The reframe is architectural and operational: sovereignty becomes observable workload behavior for Northstar, not a hosting label.' },
     ] },
     { id: 'architecture', label: '01', title: 'Guided architecture', scenes: [
       { id: 'guided-architecture', type: 'guided-architecture', beat: 'system-reveal', eyebrow: 'Governed workload architecture', title: 'One request. Five independent responsibilities.', body: 'Answer one implementation question at a time, then reveal the runtime boundary that owns it.', layers: [
@@ -44,7 +44,7 @@ export const demoConfig: DemoConfig = {
       ], technicalTopology, speakerPrompt: 'Pause on the question, then reveal the owning runtime object. Keep policy, LLM output, evidence, and authority visibly separate.' },
     ] },
     { id: 'proof', label: '02', title: 'Live governed journey', scenes: [
-      { id: 'live', type: 'live-journey', beat: 'live-proof', eyebrow: 'Governed boundary proof', title: 'One contract. Four distinguishable outcomes.', body: 'Allowed, denied, injection, and unavailable conditions must remain attributable and fail closed.', cta: 'Run the qualification journey', workspace: { label: 'Continue to the 201 lab', href: '/lab/' }, technicalTopology, nodes: [
+      { id: 'live', type: 'live-journey', beat: 'live-proof', eyebrow: 'Northstar Claims proof', title: 'One contract. Four distinguishable outcomes.', body: 'The claims assistant must distinguish allowed, denied, injection, and unavailable conditions without surrendering human authority.', cta: 'Run the qualification journey', workspace: { label: 'Continue to the 201 lab', href: '/lab/' }, technicalTopology, nodes: [
         { id: 'request', label: 'Request', detail: 'identity + destination', tone: 'primary' },
         { id: 'policy', label: 'Policy', detail: 'deterministic allow or deny', tone: 'primary' },
         { id: 'route', label: 'Adapter', detail: 'schema + policy + injection guard', tone: 'success' },
@@ -75,6 +75,6 @@ export const demoConfig: DemoConfig = {
     ] },
   ],
   journeyHandoffs: [
-    { depth: 'lab', title: 'Sovereign AI 201 Showroom', duration: '75–90 minutes', question: 'Can your team construct and qualify the same fail-closed boundary?', technology: 'Red Hat OpenShift · JSON Schema · Secret references · NetworkPolicy · typed evidence', instruction: 'Map, author, wire, allow, deny, break, review, and reclaim the workload.', href: '/lab/' },
+    { depth: 'lab', title: 'The Case That Could Not Leave the Region', duration: '75–90 minutes', question: 'Can your team construct and qualify Northstar Claims’ fail-closed boundary?', technology: 'Red Hat OpenShift · JSON Schema · Secret references · NetworkPolicy · typed evidence', instruction: 'Map, author, wire, allow, deny, break, review, and reclaim the claims-assistant workload.', href: '/lab/' },
   ],
 }

@@ -1,14 +1,34 @@
-= Build the Governed Inference Boundary
+= The Case That Could Not Leave the Region
 :page-layout: home
 
-In this 75–90 minute construction lab, you author and qualify one governed
-inference boundary on Red Hat OpenShift. The boundary constrains an approved
-model route, keeps runtime credentials out of learner artifacts, preserves
-correlation evidence, and fails closed when policy, input, or dependencies do
-not qualify.
+== The customer story
 
-You leave with a request contract, client, Secret reference, Service,
-NetworkPolicy, five-condition evidence map, human decision, and reclaim receipt.
+Northstar Claims wants an AI assistant to draft a concise case summary for a
+claims analyst. The prompt can contain personal data, so the assistant may use
+only an approved model route, an approved region, and a named workload
+identity. A useful answer is not enough: the claims analyst must be able to
+show why the request ran, why a changed request was denied, and who retained
+final authority.
 
-Begin with xref:01-prerequisite.adoc[the prerequisite check].
+In this 75–90 minute build lab, you become the platform engineer responsible
+for that boundary on Red Hat OpenShift. You will inspect the running boundary,
+author Northstar's versioned request, exercise live or rehearsal inference,
+force three fail-closed conditions, verify redacted receipts, and close your
+participant workspace without deleting Launchpad-owned services.
 
+== Customer outcome
+
+You leave with a review package that answers five questions:
+
+* Who and what was allowed to request inference?
+* Which region and model were approved before the model was called?
+* Did an Intel-hosted model actually participate, or was this a rehearsal?
+* Can a reviewer correlate the decision without recovering the prompt or a Secret?
+* What did the learner clean up, and what remains owned by Launchpad?
+
+This lab does not certify sovereignty merely because it generated text. Policy
+constrains the request, the model supplies advisory content only when the
+runtime proves `LIVE`, evidence supports review, and a human makes the final
+decision.
+
+Begin with xref:01-prerequisite.adoc[establishing your session].

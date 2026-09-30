@@ -20,6 +20,9 @@ spec:
   ingress:
     - from:
         - podSelector: {matchLabels: {app.kubernetes.io/name: sovereign-ai-201-presentation}}
+        # The Launchpad Showroom pod hosts the learner terminal. Admit that
+        # namespace-local client without opening the adapter to every pod.
+        - podSelector: {matchLabels: {app.kubernetes.io/name: showroom}}
         - podSelector: {matchLabels: {demo.redhat-intel.com/role: learner-client}}
       ports: [{protocol: TCP, port: 8080}]
   egress:
@@ -33,4 +36,3 @@ spec:
         - ipBlock: {cidr: {{ .Values.adapter.model.egressCIDR | quote }}}
       ports: [{protocol: TCP, port: {{ .Values.adapter.model.egressPort }} }]
     {{- end }}
-

@@ -1,18 +1,66 @@
-= 8. Reclaim and prove cleanup
+= 8. Export, clean up, and prove the boundary
 
-Capture the workload inventory before cleanup:
+== Show
 
+Your seat contains two ownership classes. The files under `$LAB_DIR` are
+participant-owned. The adapter, Service, NetworkPolicies, runtime Secret,
+Showroom, and namespace are Launchpad-owned. A participant must not delete the
+platform objects simply to make a zero-residue claim.
+
+== Learn
+
+Participant cleanup proves that your authored requests and downloaded receipts
+were removed. Workshop reclaim is a separate Launchpad lifecycle action that
+removes the namespace and shared seat resources after the order expires or the
+owner reclaims it. The final certification must prove both boundaries.
+
+== Do
+
+Create a review manifest without copying prompts or credentials into it, then
+list the files that will be removed.
+
+[source,bash,role="execute"]
 ----
-oc get deploy,svc,route,networkpolicy,secret -l app.kubernetes.io/part-of=sovereign-ai-201 -o name | sort | tee before-reclaim.txt
+python3 - "$LAB_DIR" <<'PY'
+import hashlib, json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+artifacts = []
+for path in sorted(root.glob("*.json")):
+    if path.name == "review-package.json":
+        continue
+    artifacts.append({"name": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+package = {"lab": "sovereign-ai-201", "artifact_count": len(artifacts), "artifacts": artifacts,
+           "authority": "HUMAN_REVIEW_REQUIRED", "promotion_authorized": False}
+(root / "review-package.json").write_text(json.dumps(package, indent=2) + "\n")
+print(json.dumps(package, indent=2))
+PY
+find "$LAB_DIR" -maxdepth 1 -type f -print | sort
 ----
 
-Uninstall only your Helm release and remove the participant namespace only when
-the workshop owner assigns namespace cleanup to you. Never delete a shared
-runtime Secret or model service.
+Delete only the participant-owned workspace. Leave Launchpad-owned resources
+for the automated reclaim controller.
 
-Capture the same labeled inventory afterward and require zero matching workload
-objects. Save the command, release, namespace, before/after inventories,
-timestamp, and any retained shared dependency in `reclaim-receipt.json`.
+[source,bash,role="execute"]
+----
+rm -rf -- "$LAB_DIR"
+test ! -e "$LAB_DIR"
+echo "PASS: participant-owned artifacts removed"
+----
 
-Factory container cleanup does not substitute for this OpenShift reclaim proof.
+== Prove
 
+Show that the participant workspace is at zero while the healthy
+Launchpad-owned adapter remains available for the rest of the workshop.
+
+[source,bash,role="execute"]
+----
+test ! -e "$HOME/sovereign-ai-201"
+test "$(oc get deploy sovereign-ai-201-adapter -o jsonpath='{.status.readyReplicas}')" -ge 1
+curl -fsS "$ADAPTER_URL/healthz" | python3 -m json.tool
+echo "PASS: participant residue is zero; Launchpad-owned lifecycle remains intact"
+----
+
+When the workshop owner reclaims the order, Launchpad must independently prove
+that the namespace, routes, RoleBindings, entitlements, and catalog-specific
+resources reach zero. This lab does not claim that platform reclaim happened
+before that lifecycle event.
