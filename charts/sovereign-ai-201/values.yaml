@@ -4,6 +4,7 @@ adapter:
   # Optional cluster pod-network boundary for OpenShift host-network DNS pods.
   # The Launchpad cluster contract supplies this value; it is fail-closed by default.
   dnsEgressCIDR: ""
+  dnsServiceCIDR: ""
   image:
     repository: localhost/sovereign-ai-201-adapter
     tag: 0.1.0
