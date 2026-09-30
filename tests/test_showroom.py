@@ -9,10 +9,14 @@ SHOWROOM = ROOT / "showroom"
 
 
 class ShowroomTests(unittest.TestCase):
-    def test_showroom_has_independent_playbook(self):
-        playbook = yaml.safe_load((SHOWROOM / "default-site.yml").read_text())
+    def test_showroom_has_root_discoverable_playbook(self):
+        playbook = yaml.safe_load((ROOT / "default-site.yml").read_text())
         self.assertEqual(playbook["site"]["start_page"], "sovereign-ai-201::index.adoc")
-        self.assertEqual(playbook["content"]["sources"], [{"url": "./content", "branches": "HEAD"}])
+        self.assertEqual(
+            playbook["content"]["sources"],
+            [{"url": ".", "start_path": "showroom/content", "branches": "HEAD"}],
+        )
+        self.assertTrue((ROOT / "showroom/content/antora.yml").is_file())
         self.assertEqual(
             playbook["ui"]["bundle"]["url"],
             "https://github.com/rhpds/rhdp_showroom_theme/releases/download/v2.0.3/ui-bundle.zip",
