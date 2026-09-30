@@ -43,6 +43,9 @@ class ReleaseWorkflowTests(unittest.TestCase):
 
         containerfile = (ROOT / "showroom-content" / "Containerfile").read_text()
         loader = (ROOT / "showroom-content" / "main.go").read_text()
+        self.assertIn(
+            "default-site.yml /bundle/default-site.yml", containerfile
+        )
         self.assertIn("showroom /bundle/showroom", containerfile)
         self.assertIn("git init /out/content", containerfile)
         self.assertIn("/out/content /bundle/showroom/content", containerfile)
