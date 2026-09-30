@@ -1,6 +1,5 @@
 name: sovereign-ai-201
 title: Sovereign AI 201
-version: master
+version: main
 nav:
   - modules/ROOT/nav.adoc
-

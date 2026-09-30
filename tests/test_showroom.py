@@ -15,6 +15,7 @@ class ShowroomTests(unittest.TestCase):
     def test_lab_is_complete_and_construction_led(self):
         antora = yaml.safe_load((SHOWROOM / "content/antora.yml").read_text())
         self.assertEqual(antora["name"], "sovereign-ai-201")
+        self.assertEqual(antora["version"], "main")
         nav = (SHOWROOM / "content/modules/ROOT/nav.adoc").read_text()
         for page in ("01-prerequisite", "02-map-boundaries", "03-author-contract", "04-wire-controls", "05-qualify-paths", "06-break-fail-closed", "07-evidence-authority", "08-reclaim"):
             self.assertIn(page, nav)
@@ -38,4 +39,3 @@ class ShowroomTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
